@@ -280,19 +280,19 @@
       <h2 class="section-title"><span class="material-symbols-outlined">calendar_month</span>Resumo de <span id="dashMonthLabel"></span></h2>
       <div class="stat-grid">
         <div class="stat pos"><div class="bar"></div><label>Renda do mês</label><div class="value" id="statRenda">R$ 0,00</div></div>
-        <div class="stat neg"><div class="bar"></div><label>Gastos do mês</label><div class="value" id="statGastos">R$ 0,00</div></div>
-        <div class="stat info"><div class="bar"></div><label>Saldo do mês</label><div class="value" id="statSaldo">R$ 0,00</div></div>
-        <div class="stat warn"><div class="bar"></div><label>Dívidas em aberto</label><div class="value" id="statDividas">R$ 0,00</div></div>
+        <div class="stat neg"><div class="bar"></div><label>Já pago</label><div class="value" id="statPago">R$ 0,00</div></div>
+        <div class="stat warn"><div class="bar"></div><label>Falta pagar</label><div class="value" id="statFalta">R$ 0,00</div></div>
+        <div class="stat info"><div class="bar"></div><label>Saldo disponível</label><div class="value" id="statSaldo">R$ 0,00</div></div>
       </div>
-
-      <h2 class="section-title"><span class="material-symbols-outlined">house</span>Financiamento da casa</h2>
-      <div class="card" id="dashCasaCard">
-        <div class="debt-numbers" style="margin-top:0;">
-          <div>Saldo devedor<b id="dashCasaSaldo">—</b></div>
-          <div>Já amortizado<b id="dashCasaAmortizado">—</b></div>
-          <div>Valor financiado<b id="dashCasaTotal">—</b></div>
+      <div class="card" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="material-symbols-outlined" style="color:var(--red-500);">account_balance_wallet</span>
+          <div>
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;">Total de dívidas em aberto</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);">Cartões + outras dívidas</div>
+          </div>
         </div>
-        <div class="progress-track"><div class="progress-fill" id="dashCasaProgress" style="width:0%"></div></div>
+        <div class="value" id="statDividas" style="font-family:var(--font-mono);font-weight:700;font-size:17px;">R$ 0,00</div>
       </div>
 
       <h2 class="section-title"><span class="material-symbols-outlined">credit_card</span>Cartões de crédito</h2>
@@ -307,10 +307,14 @@
         <button id="nextMonth" aria-label="Próximo mês"><span class="material-symbols-outlined">chevron_right</span></button>
       </div>
 
-      <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="stat-grid">
         <div class="stat pos"><div class="bar"></div><label>Renda</label><div class="value" id="mRenda">R$ 0,00</div></div>
-        <div class="stat neg"><div class="bar"></div><label>Gastos</label><div class="value" id="mGastos">R$ 0,00</div></div>
-        <div class="stat info"><div class="bar"></div><label>Saldo</label><div class="value" id="mSaldo">R$ 0,00</div></div>
+        <div class="stat neg"><div class="bar"></div><label>Já pago</label><div class="value" id="mPago">R$ 0,00</div></div>
+        <div class="stat warn"><div class="bar"></div><label>Falta pagar</label><div class="value" id="mFalta">R$ 0,00</div></div>
+        <div class="stat info"><div class="bar"></div><label>Saldo disponível</label><div class="value" id="mSaldo">R$ 0,00</div></div>
+      </div>
+      <div class="progress-track" style="margin-bottom:14px;" title="Quanto do total de contas já foi pago">
+        <div class="progress-fill" id="mProgress" style="width:0%"></div>
       </div>
 
       <h2 class="section-title"><span class="material-symbols-outlined">trending_up</span>Renda</h2>
@@ -367,7 +371,6 @@
       <div class="segmented">
         <button data-sub="cartoes" class="active">Cartões</button>
         <button data-sub="outras">Outras dívidas</button>
-        <button data-sub="casa">Financ. da casa</button>
       </div>
 
       <!-- Cartões -->
@@ -413,46 +416,6 @@
         </form>
       </div>
 
-      <!-- Casa -->
-      <div class="sub-panel" id="sub-casa">
-        <div class="card" id="casaSetupCard">
-          <h2 class="section-title" style="margin-top:0;"><span class="material-symbols-outlined">tune</span>Dados do financiamento</h2>
-          <form id="casaSetupForm" class="add-form open" style="border-top:none;margin-top:0;padding-top:0;">
-            <div class="row-2">
-              <div class="field"><label>Valor financiado (R$)</label><input type="number" id="casaValorFinanciado" step="0.01" min="0"></div>
-              <div class="field"><label>Saldo devedor atual (R$)</label><input type="number" id="casaSaldoAtual" step="0.01" min="0"></div>
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary btn-block">Salvar dados</button>
-            </div>
-          </form>
-        </div>
-
-        <h2 class="section-title"><span class="material-symbols-outlined">history</span>Histórico de parcelas</h2>
-        <div class="card">
-          <div id="casaList"></div>
-          <div id="casaEmpty" class="empty">
-            <span class="material-symbols-outlined">home_work</span>
-            <p>Nenhuma parcela lançada ainda.</p>
-          </div>
-          <button class="add-toggle" data-form="casaParcelaForm"><span class="material-symbols-outlined">add</span>Lançar parcela</button>
-          <form class="add-form" id="casaParcelaForm">
-            <div class="row-2">
-              <div class="field"><label>Data</label><input type="date" id="casaData" required></div>
-              <div class="field"><label>Valor da parcela (R$)</label><input type="number" id="casaValorParcela" step="0.01" min="0" required></div>
-            </div>
-            <div class="row-2">
-              <div class="field"><label>Juros + taxas (R$)</label><input type="number" id="casaJuros" step="0.01" min="0" value="0"></div>
-              <div class="field"><label>Amortização extra (R$)</label><input type="number" id="casaAmortExtra" step="0.01" min="0" value="0"></div>
-            </div>
-            <div class="field"><label>Novo saldo devedor (R$)</label><input type="number" id="casaNovoSaldo" step="0.01" min="0" required></div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary btn-block">Salvar</button>
-              <button type="button" class="btn btn-ghost" data-cancel="casaParcelaForm">Cancelar</button>
-            </div>
-          </form>
-        </div>
-      </div>
     </section>
   </main>
 </div>
@@ -473,7 +436,7 @@ function loadState(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  return { gastos:{}, cartoes:[], outras:[], casa:{ valorFinanciado:0, saldoAtual:0, parcelas:[] }, theme:'light' };
+  return { gastos:{}, cartoes:[], outras:[], theme:'light' };
 }
 let state = loadState();
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -554,10 +517,15 @@ function renderGastos(){
   const data = getMonthData(key);
 
   const totalRenda = data.rendas.reduce((s,i)=>s+Number(i.valor||0),0);
-  const totalGastos = data.despesas.reduce((s,i)=>s+Number(i.valor||0),0);
+  const totalPago = data.despesas.filter(i=>i.status==='pago').reduce((s,i)=>s+Number(i.valor||0),0);
+  const totalFalta = data.despesas.filter(i=>i.status!=='pago').reduce((s,i)=>s+Number(i.valor||0),0);
+  const totalGastos = totalPago + totalFalta;
+  const saldoDisponivel = totalRenda - totalPago;
   document.getElementById('mRenda').textContent = brl(totalRenda);
-  document.getElementById('mGastos').textContent = brl(totalGastos);
-  document.getElementById('mSaldo').textContent = brl(totalRenda-totalGastos);
+  document.getElementById('mPago').textContent = brl(totalPago);
+  document.getElementById('mFalta').textContent = brl(totalFalta);
+  document.getElementById('mSaldo').textContent = brl(saldoDisponivel);
+  document.getElementById('mProgress').style.width = (totalGastos>0 ? Math.min(100,(totalPago/totalGastos)*100) : 0)+'%';
 
   const rl = document.getElementById('rendaList');
   rl.innerHTML='';
@@ -573,12 +541,15 @@ function renderGastos(){
   document.getElementById('gastoEmpty').style.display = data.despesas.length ? 'none':'block';
   data.despesas.slice().reverse().forEach(item=>{
     gl.appendChild(renderLedgerItem(item,'expense',()=>{
-      data.despesas = data.despesas.filter(x=>x.id!==item.id); save(); renderGastos();
-    }, item.categoria, item.status));
+      data.despesas = data.despesas.filter(x=>x.id!==item.id); save(); renderGastos(); renderDashboard();
+    }, item.categoria, item.status, ()=>{
+      item.status = item.status==='pago' ? 'pendente' : 'pago';
+      save(); renderGastos(); renderDashboard();
+    }));
   });
 }
 
-function renderLedgerItem(item,type,onDelete,categoria,status){
+function renderLedgerItem(item,type,onDelete,categoria,status,onToggleStatus){
   const row = document.createElement('div');
   row.className='ledger-item';
   const metaBits=[];
@@ -593,11 +564,15 @@ function renderLedgerItem(item,type,onDelete,categoria,status){
       </div>
     </div>
     <div class="li-right">
-      ${status?`<span class="chip ${status}">${status==='pago'?'Pago':'Pendente'}</span>`:''}
+      ${status?`<button type="button" class="chip ${status}" style="border:none;cursor:pointer;">${status==='pago'?'Pago':'Pendente'}</button>`:''}
       <span class="li-value ${type}">${type==='income'?'+':'−'} ${brl(item.valor)}</span>
       <button class="del-btn" aria-label="Remover"><span class="material-symbols-outlined">delete</span></button>
     </div>`;
   row.querySelector('.del-btn').addEventListener('click', onDelete);
+  if(onToggleStatus){
+    const chipBtn = row.querySelector('.chip');
+    if(chipBtn) chipBtn.addEventListener('click', onToggleStatus);
+  }
   return row;
 }
 
@@ -698,83 +673,22 @@ document.getElementById('outraForm').addEventListener('submit', e=>{
   renderOutras(); renderDashboard();
 });
 
-/* ============ Financiamento da casa ============ */
-function renderCasaSetup(){
-  document.getElementById('casaValorFinanciado').value = state.casa.valorFinanciado || '';
-  document.getElementById('casaSaldoAtual').value = state.casa.saldoAtual || '';
-}
-document.getElementById('casaSetupForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  state.casa.valorFinanciado = parseFloat(document.getElementById('casaValorFinanciado').value)||0;
-  state.casa.saldoAtual = parseFloat(document.getElementById('casaSaldoAtual').value)||0;
-  save(); renderCasa(); renderDashboard();
-});
-
-function renderCasa(){
-  renderCasaSetup();
-  const list = document.getElementById('casaList');
-  list.innerHTML='';
-  document.getElementById('casaEmpty').style.display = state.casa.parcelas.length ? 'none':'block';
-  state.casa.parcelas.slice().reverse().forEach(p=>{
-    const row = document.createElement('div');
-    row.className='ledger-item';
-    const dataFmt = p.data ? new Date(p.data+'T00:00:00').toLocaleDateString('pt-BR') : '';
-    row.innerHTML = `
-      <div class="ledger-main">
-        <span class="dot expense"></span>
-        <div class="li-text">
-          <span class="desc">Parcela · ${dataFmt}</span>
-          <span class="meta">Juros ${brl(p.juros)} ${p.amortExtra?(' · Amort. extra '+brl(p.amortExtra)):''} · Saldo após ${brl(p.saldoDevedor)}</span>
-        </div>
-      </div>
-      <div class="li-right">
-        <span class="li-value expense">− ${brl(p.valorParcela)}</span>
-        <button class="del-btn" aria-label="Remover"><span class="material-symbols-outlined">delete</span></button>
-      </div>`;
-    row.querySelector('.del-btn').addEventListener('click', ()=>{
-      state.casa.parcelas = state.casa.parcelas.filter(x=>x.id!==p.id); save(); renderCasa(); renderDashboard();
-    });
-    list.appendChild(row);
-  });
-}
-document.getElementById('casaParcelaForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const data = document.getElementById('casaData').value;
-  const valorParcela = parseFloat(document.getElementById('casaValorParcela').value);
-  const juros = parseFloat(document.getElementById('casaJuros').value)||0;
-  const amortExtra = parseFloat(document.getElementById('casaAmortExtra').value)||0;
-  const saldoDevedor = parseFloat(document.getElementById('casaNovoSaldo').value);
-  if(!data || isNaN(valorParcela) || isNaN(saldoDevedor)) return;
-  state.casa.parcelas.push({id:uid(), data, valorParcela, juros, amortExtra, saldoDevedor});
-  state.casa.saldoAtual = saldoDevedor;
-  save(); e.target.reset(); e.target.classList.remove('open');
-  renderCasa(); renderDashboard();
-});
-
 /* ============ Dashboard ============ */
 function renderDashboard(){
   document.getElementById('dashMonthLabel').textContent = monthLabelFor(currentDate);
   const key = monthKey(currentDate);
   const data = getMonthData(key);
   const totalRenda = data.rendas.reduce((s,i)=>s+Number(i.valor||0),0);
-  const totalGastos = data.despesas.reduce((s,i)=>s+Number(i.valor||0),0);
+  const totalPago = data.despesas.filter(i=>i.status==='pago').reduce((s,i)=>s+Number(i.valor||0),0);
+  const totalFalta = data.despesas.filter(i=>i.status!=='pago').reduce((s,i)=>s+Number(i.valor||0),0);
   document.getElementById('statRenda').textContent = brl(totalRenda);
-  document.getElementById('statGastos').textContent = brl(totalGastos);
-  document.getElementById('statSaldo').textContent = brl(totalRenda-totalGastos);
+  document.getElementById('statPago').textContent = brl(totalPago);
+  document.getElementById('statFalta').textContent = brl(totalFalta);
+  document.getElementById('statSaldo').textContent = brl(totalRenda-totalPago);
 
   const totalCartoes = state.cartoes.reduce((s,c)=>s+Number(c.saldo||0),0);
   const totalOutras = state.outras.reduce((s,d)=>s+Math.max(0,Number(d.total||0)-Number(d.pago||0)),0);
-  const totalCasa = Number(state.casa.saldoAtual||0);
-  document.getElementById('statDividas').textContent = brl(totalCartoes+totalOutras+totalCasa);
-
-  const financiado = Number(state.casa.valorFinanciado||0);
-  const saldoAtual = Number(state.casa.saldoAtual||0);
-  const amortizado = Math.max(0, financiado-saldoAtual);
-  const pct = financiado>0 ? Math.min(100,(amortizado/financiado)*100) : 0;
-  document.getElementById('dashCasaSaldo').textContent = financiado||saldoAtual ? brl(saldoAtual) : '—';
-  document.getElementById('dashCasaAmortizado').textContent = financiado ? brl(amortizado) : '—';
-  document.getElementById('dashCasaTotal').textContent = financiado ? brl(financiado) : '—';
-  document.getElementById('dashCasaProgress').style.width = pct+'%';
+  document.getElementById('statDividas').textContent = brl(totalCartoes+totalOutras);
 
   const cc = document.getElementById('dashCartoesCard');
   if(state.cartoes.length===0){
@@ -789,11 +703,9 @@ function renderDashboard(){
 }
 
 /* ============ Init ============ */
-document.getElementById('casaData').valueAsDate = new Date();
 renderGastos();
 renderCartoes();
 renderOutras();
-renderCasa();
 renderDashboard();
 
 /* ============ PWA ============ */
