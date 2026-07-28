@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestao-financeira-v3';
+const CACHE_NAME = 'gestao-financeira-v4';
 const ASSETS = [
   './index.html',
   './manifest.json'
@@ -20,8 +20,9 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Never cache Google Fonts/Material Symbols requests, always go to network
-  if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
+  // Nunca cachear fontes do Google nem Firebase/Firestore — sempre buscar da rede
+  const bypass = ['fonts.googleapis.com','fonts.gstatic.com','gstatic.com','googleapis.com','firebaseio.com'];
+  if (bypass.some(h => url.hostname.includes(h))) {
     return;
   }
   e.respondWith(

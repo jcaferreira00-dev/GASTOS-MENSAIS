@@ -1,7 +1,7 @@
 {
   "name": "Gestão Financeira",
   "short_name": "Gestão Fin.",
-  "description": "Controle de gastos mensais, cartões, dívidas e financiamento da casa.",
+  "description": "Controle de gastos mensais, cartões e outras dívidas.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -9,6 +9,11 @@
   "theme_color": "#123524",
   "orientation": "portrait-primary",
   "icons": [
+    { "src": "favicon-16x16.png", "sizes": "16x16", "type": "image/png", "purpose": "any" },
+    { "src": "favicon-32x32.png", "sizes": "32x32", "type": "image/png", "purpose": "any" },
+    { "src": "android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
