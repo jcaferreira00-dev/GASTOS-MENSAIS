@@ -65,6 +65,7 @@
   ::selection{background:var(--yellow-400);color:var(--green-950);}
 
   /* ---------- Topbar ---------- */
+  :root{ --blue-900:#123a5c; --blue-700:#1d5c8c; }
   .topbar{
     position:sticky;top:0;z-index:40;
     background:var(--green-900);color:#eef3ee;
@@ -72,6 +73,12 @@
     padding-top:calc(16px + env(safe-area-inset-top,0px));
     display:flex;align-items:center;justify-content:space-between;
     box-shadow:var(--shadow);
+    transition:background .3s ease,padding .25s ease;
+  }
+  .topbar.all-paid{background:var(--blue-900);}
+  .topbar.shrink{
+    padding-top:calc(8px + env(safe-area-inset-top,0px));
+    padding-bottom:8px;
   }
   .brand{display:flex;align-items:center;gap:10px;min-width:0;}
   .brand .mark{
@@ -79,16 +86,24 @@
     background:linear-gradient(155deg,var(--green-500),var(--green-700));
     display:flex;align-items:center;justify-content:center;
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);
+    transition:width .25s ease,height .25s ease,background .3s ease;
   }
-  .brand .mark .material-symbols-outlined{color:#eafff0;font-size:19px;}
-  .brand h1{font-family:var(--font-display);font-size:16px;margin:0;font-weight:700;letter-spacing:.1px;}
-  .brand span{display:block;font-size:11px;color:#a9c4b4;font-weight:500;letter-spacing:.2px;}
+  .topbar.all-paid .brand .mark{background:linear-gradient(155deg,var(--blue-700),var(--blue-900));}
+  .topbar.shrink .brand .mark{width:26px;height:26px;border-radius:7px;}
+  .topbar.shrink .brand .mark .material-symbols-outlined{font-size:15px;}
+  .brand .mark .material-symbols-outlined{color:#eafff0;font-size:19px;transition:font-size .25s ease;}
+  .brand h1{font-family:var(--font-display);font-size:16px;margin:0;font-weight:700;letter-spacing:.1px;transition:font-size .25s ease;}
+  .topbar.shrink .brand h1{font-size:13.5px;}
+  .brand span{display:block;font-size:11px;color:#a9c4b4;font-weight:500;letter-spacing:.2px;max-height:16px;overflow:hidden;transition:max-height .2s ease,opacity .2s ease;opacity:1;}
+  .topbar.shrink .brand span{max-height:0;opacity:0;}
   .top-actions{display:flex;align-items:center;gap:6px;flex:none;}
   .icon-btn{
     width:38px;height:38px;border-radius:10px;border:none;
     background:rgba(255,255,255,.08);color:#eef3ee;
     display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+    transition:width .25s ease,height .25s ease;
   }
+  .topbar.shrink .icon-btn{width:30px;height:30px;}
   .icon-btn:active{background:rgba(255,255,255,.18);}
 
   /* ---------- Layout shell ---------- */
@@ -151,14 +166,16 @@
     padding:12px 2px;border-bottom:1px dashed var(--line);
   }
   .ledger-item:last-child{border-bottom:none;}
-  .ledger-main{display:flex;align-items:center;gap:11px;min-width:0;}
-  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .ledger-item.stacked{display:block;padding:13px 2px;}
+  .ledger-main,.ledger-top{display:flex;align-items:flex-start;gap:11px;min-width:0;}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:5px;}
   .dot.income{background:var(--green-500);}
   .dot.expense{background:var(--red-500);}
-  .li-text{min-width:0;}
-  .li-text .desc{font-weight:600;font-size:14.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .li-text .meta{font-size:12px;color:var(--ink-soft);}
+  .li-text{min-width:0;flex:1;}
+  .li-text .desc{font-weight:600;font-size:14.5px;display:block;white-space:normal;word-break:break-word;line-height:1.32;}
+  .li-text .meta{font-size:12px;color:var(--ink-soft);display:block;margin-top:1px;}
   .li-right{display:flex;align-items:center;gap:6px;flex:none;}
+  .ledger-bottom{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:8px;padding-left:19px;}
   .li-value{font-family:var(--font-mono);font-weight:600;font-size:14.5px;margin-right:2px;}
   .li-value.income{color:var(--green-600);}
   .li-value.expense{color:var(--red-600);}
@@ -168,6 +185,7 @@
   }
   .chip.pago{background:rgba(51,168,102,.15);color:var(--green-600);}
   .chip.pendente{background:rgba(240,180,41,.18);color:#a9760a;}
+  .chip.atrasado{background:rgba(217,95,95,.15);color:var(--red-600);}
   [data-theme="dark"] .chip.pendente{color:var(--yellow-400);}
   .icon-sm-btn{
     width:26px;height:26px;border:none;background:transparent;color:var(--ink-soft);
@@ -489,14 +507,19 @@
               <div class="field"><label>Valor (R$)</label><input type="number" id="gastoValor" step="0.01" min="0" placeholder="0,00" required></div>
               <div class="field"><label>Categoria</label>
                 <select id="gastoCategoria">
-                  <option>Moradia</option><option>Contas fixas</option><option>Alimentação</option>
-                  <option>Transporte</option><option>Educação</option><option>Saúde</option>
+                  <option>Moradia</option><option>Contas fixas</option><option>Telefonia e Internet</option>
+                  <option>Alimentação</option><option>Transporte</option><option>Educação</option><option>Saúde</option>
+                  <option>Cartão de crédito</option><option>Impostos e taxas</option><option>Jurídico</option>
+                  <option>Consórcio</option><option>Empréstimos e financiamentos</option><option>Terrenos e imóveis</option>
                   <option>Lazer</option><option>Outros</option>
                 </select>
               </div>
             </div>
-            <div class="field"><label>Status</label>
-              <select id="gastoStatus"><option value="pendente">Pendente</option><option value="pago">Pago</option></select>
+            <div class="row-2">
+              <div class="field"><label>Vencimento (opcional)</label><input type="date" id="gastoVencimento"></div>
+              <div class="field"><label>Status</label>
+                <select id="gastoStatus"><option value="pendente">Pendente</option><option value="pago">Pago</option></select>
+              </div>
             </div>
             <div class="form-actions">
               <button type="submit" class="btn btn-primary btn-block">Salvar</button>
@@ -644,23 +667,23 @@ function seedInitialData(){
       {id:uid(), desc:'Pagamento dia 30', valor:7085.44}
     ],
     despesas: [
-      {id:uid(), desc:'Processo', valor:500.00, categoria:'Outros', status:'pendente'},
+      {id:uid(), desc:'Processo', valor:500.00, categoria:'Jurídico', status:'pendente'},
       {id:uid(), desc:'Água', valor:110.73, categoria:'Contas fixas', status:'pendente'},
       {id:uid(), desc:'Luz Chácara', valor:63.79, categoria:'Contas fixas', status:'pendente'},
-      {id:uid(), desc:'TIM', valor:32.99, categoria:'Contas fixas', status:'pendente'},
+      {id:uid(), desc:'TIM', valor:32.99, categoria:'Telefonia e Internet', status:'pendente'},
       {id:uid(), desc:'Casa', valor:858.54, categoria:'Moradia', status:'pendente'},
       {id:uid(), desc:'Luz', valor:68.93, categoria:'Contas fixas', status:'pendente'},
       {id:uid(), desc:'HC', valor:140.00, categoria:'Saúde', status:'pendente'},
-      {id:uid(), desc:'Cartão Bradesco', valor:721.27, categoria:'Outros', status:'pendente'},
-      {id:uid(), desc:'Internet', valor:99.90, categoria:'Contas fixas', status:'pendente'},
-      {id:uid(), desc:'Custas Processuais', valor:1043.16, categoria:'Outros', status:'pendente'},
+      {id:uid(), desc:'Cartão Bradesco', valor:721.27, categoria:'Cartão de crédito', status:'pendente'},
+      {id:uid(), desc:'Internet', valor:99.90, categoria:'Telefonia e Internet', status:'pendente'},
+      {id:uid(), desc:'Custas Processuais', valor:1043.16, categoria:'Jurídico', status:'pendente'},
       {id:uid(), desc:'IPTU Chácara', valor:195.30, categoria:'Moradia', status:'pendente'},
-      {id:uid(), desc:'Impostos Lotes', valor:108.12, categoria:'Moradia', status:'pendente'},
+      {id:uid(), desc:'Impostos Lotes', valor:108.12, categoria:'Impostos e taxas', status:'pendente'},
       {id:uid(), desc:'Escola Julia', valor:1390.00, categoria:'Educação', status:'pago'},
-      {id:uid(), desc:'Consórcio', valor:733.08, categoria:'Outros', status:'pago'},
-      {id:uid(), desc:'FIES', valor:514.90, categoria:'Educação', status:'pago'},
-      {id:uid(), desc:'Terreno Paraguay', valor:400.00, categoria:'Outros', status:'pago'},
-      {id:uid(), desc:'Nubank', valor:1027.08, categoria:'Outros', status:'pago'}
+      {id:uid(), desc:'Consórcio', valor:733.08, categoria:'Consórcio', status:'pago'},
+      {id:uid(), desc:'FIES', valor:514.90, categoria:'Empréstimos e financiamentos', status:'pago'},
+      {id:uid(), desc:'Terreno Paraguay', valor:400.00, categoria:'Terrenos e imóveis', status:'pago'},
+      {id:uid(), desc:'Nubank', valor:1027.08, categoria:'Cartão de crédito', status:'pago'}
     ]
   };
   state.cartoes = [
@@ -810,6 +833,10 @@ function renderGastos(){
   document.getElementById('rendaCount').textContent = data.rendas.length;
   document.getElementById('gastoCount').textContent = data.despesas.length;
 
+  // Cabeçalho fica azul quando todas as contas do mês já estão pagas
+  const todasPagas = data.despesas.length>0 && totalFalta===0;
+  document.querySelector('.topbar').classList.toggle('all-paid', todasPagas);
+
   const rl = document.getElementById('rendaList');
   rl.innerHTML='';
   document.getElementById('rendaEmpty').style.display = data.rendas.length ? 'none':'block';
@@ -827,7 +854,14 @@ function renderGastos(){
   const gl = document.getElementById('gastoList');
   gl.innerHTML='';
   document.getElementById('gastoEmpty').style.display = data.despesas.length ? 'none':'block';
-  data.despesas.slice().reverse().forEach(item=>{
+  // Organiza automaticamente por data de vencimento (contas sem data ficam por último)
+  const despesasOrdenadas = data.despesas.slice().sort((a,b)=>{
+    if(!a.vencimento && !b.vencimento) return 0;
+    if(!a.vencimento) return 1;
+    if(!b.vencimento) return -1;
+    return a.vencimento.localeCompare(b.vencimento);
+  });
+  despesasOrdenadas.forEach(item=>{
     gl.appendChild(renderLedgerItem(item,'expense',
       ()=>{ data.despesas = data.despesas.filter(x=>x.id!==item.id); save(); renderGastos(); renderDashboard(); },
       item.categoria, item.status,
@@ -837,25 +871,43 @@ function renderGastos(){
         f.querySelector('#gastoValor').value = item.valor;
         f.querySelector('#gastoCategoria').value = item.categoria;
         f.querySelector('#gastoStatus').value = item.status;
-      }, item.id); }
+        f.querySelector('#gastoVencimento').value = item.vencimento || '';
+      }, item.id); },
+      item.vencimento
     ));
   });
 }
 
-function renderLedgerItem(item,type,onDelete,categoria,status,onToggleStatus,onEdit){
+function formatDataBR(iso){
+  if(!iso) return '';
+  return new Date(iso+'T00:00:00').toLocaleDateString('pt-BR');
+}
+
+function renderLedgerItem(item,type,onDelete,categoria,status,onToggleStatus,onEdit,vencimento){
   const row = document.createElement('div');
-  row.className='ledger-item';
-  const meta = categoria || '';
+  row.className='ledger-item stacked';
+  const metaBits = [];
+  if(categoria) metaBits.push(categoria);
+  if(vencimento) metaBits.push('vence '+formatDataBR(vencimento));
+  const meta = metaBits.join(' · ');
+
+  let chipClass = status, chipLabel = status==='pago' ? 'Pago' : 'Pendente';
+  if(status && status!=='pago' && vencimento){
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const dataVenc = new Date(vencimento+'T00:00:00');
+    if(dataVenc < hoje){ chipClass='atrasado'; chipLabel='Atrasado'; }
+  }
+
   row.innerHTML = `
-    <div class="ledger-main">
+    <div class="ledger-top">
       <span class="dot ${type}"></span>
       <div class="li-text">
         <span class="desc">${escapeHtml(item.desc||item.nome)}</span>
         ${meta?`<span class="meta">${escapeHtml(meta)}</span>`:''}
       </div>
     </div>
-    <div class="li-right">
-      ${status?`<button type="button" class="chip ${status}" style="border:none;cursor:pointer;">${status==='pago'?'Pago':'Pendente'}</button>`:''}
+    <div class="ledger-bottom">
+      ${status?`<button type="button" class="chip ${chipClass}" style="border:none;cursor:pointer;">${chipLabel}</button>`:''}
       <span class="li-value ${type}">${type==='income'?'+':'−'} ${brl(item.valor)}</span>
       <button class="icon-sm-btn" aria-label="Editar"><span class="material-symbols-outlined">edit</span></button>
       <button class="icon-sm-btn danger" aria-label="Remover"><span class="material-symbols-outlined">delete</span></button>
@@ -894,14 +946,15 @@ document.getElementById('gastoForm').addEventListener('submit', e=>{
   const valor = parseFloat(document.getElementById('gastoValor').value);
   const categoria = document.getElementById('gastoCategoria').value;
   const status = document.getElementById('gastoStatus').value;
+  const vencimento = document.getElementById('gastoVencimento').value || null;
   if(!desc || isNaN(valor)) return;
   const list = getMonthData(monthKey(currentDate)).despesas;
   const editId = e.target.dataset.editId;
   if(editId){
     const item = list.find(x=>x.id===editId);
-    if(item){ item.desc=desc; item.valor=valor; item.categoria=categoria; item.status=status; }
+    if(item){ item.desc=desc; item.valor=valor; item.categoria=categoria; item.status=status; item.vencimento=vencimento; }
   } else {
-    list.push({id:uid(), desc, valor, categoria, status});
+    list.push({id:uid(), desc, valor, categoria, status, vencimento});
   }
   save();
   closeForm(e.target);
@@ -1116,6 +1169,20 @@ renderGastos();
 renderCartoes();
 renderOutras();
 renderDashboard();
+
+/* ============ Cabeçalho encolhe ao rolar ============ */
+(function(){
+  const topbar = document.querySelector('.topbar');
+  let ticking = false;
+  window.addEventListener('scroll', ()=>{
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(()=>{
+      topbar.classList.toggle('shrink', window.scrollY > 40);
+      ticking = false;
+    });
+  }, {passive:true});
+})();
 
 /* ============ PWA ============ */
 if('serviceWorker' in navigator){
