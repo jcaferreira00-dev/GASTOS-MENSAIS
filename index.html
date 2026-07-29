@@ -473,7 +473,7 @@
       </div>
 
       <details class="card collapsible" open id="detRenda">
-        <summary><span class="material-symbols-outlined">trending_up</span>Renda<span class="count" id="rendaCount">0</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">trending_up</span>Renda<span class="count" id="rendaCount">0</span><span class="count" id="rendaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
           <div id="rendaList"></div>
           <div id="rendaEmpty" class="empty">
@@ -493,7 +493,7 @@
       </details>
 
       <details class="card collapsible" open id="detGastos">
-        <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="count" id="gastoSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
           <div id="gastoList"></div>
           <div id="gastoEmpty" class="empty">
@@ -628,7 +628,14 @@ let isFirstRun = false;
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) return JSON.parse(raw);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      // Migração: meses salvos por versões antigas do app não tinham o campo
+      // "locked". Marcamos todos como travados para preservar o que já foi
+      // lançado; só os meses novos (ainda não tocados) vão herdar automaticamente.
+      Object.values(parsed.gastos||{}).forEach(mes=>{ if(mes.locked===undefined) mes.locked = true; });
+      return parsed;
+    }
   }catch(e){}
   isFirstRun = true;
   return { gastos:{}, cartoes:[], outras:[], theme:'light' };
@@ -662,6 +669,7 @@ function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s??
 function seedInitialData(){
   const key = monthKey(new Date());
   state.gastos[key] = {
+    locked: true,
     rendas: [
       {id:uid(), desc:'Vale dia 15', valor:4314.16},
       {id:uid(), desc:'Pagamento dia 30', valor:7085.44}
@@ -782,30 +790,42 @@ let currentDate = new Date();
 function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthLabelFor(d){ return MONTHS[d.getMonth()] + ' de ' + d.getFullYear(); }
 
+// Só um mês "travado" (locked) conta como fonte real de dados: um mês fica travado
+// assim que o usuário adiciona, edita, exclui ou marca como pago algo nele.
+// Meses ainda não tocados pelo usuário são apenas uma "prévia" recalculada a partir
+// do mês travado mais recente — assim, ao editar o mês atual, todo mês futuro que
+// ainda não foi mexido acompanha a mudança automaticamente, em vez de ficar
+// congelado com os dados antigos só por ter sido visualizado.
 function findPreviousMonthData(key){
   const [y,m] = key.split('-').map(Number);
   let d = new Date(y, m-2, 1);
   for(let i=0;i<24;i++){
     const k = monthKey(d);
-    if(state.gastos[k]) return state.gastos[k];
+    const entry = state.gastos[k];
+    if(entry && entry.locked) return entry;
     d.setMonth(d.getMonth()-1);
   }
   return null;
 }
 function getMonthData(key){
-  if(!state.gastos[key]){
-    const prev = findPreviousMonthData(key);
-    if(prev){
-      state.gastos[key] = {
+  const existing = state.gastos[key];
+  if(existing && existing.locked) return existing;
+
+  const prev = findPreviousMonthData(key);
+  const fresh = prev
+    ? {
+        locked:false,
         rendas: prev.rendas.map(r=>({...r, id:uid()})),
         despesas: prev.despesas.map(d=>({...d, id:uid(), status:'pendente'}))
-      };
-    } else {
-      state.gastos[key] = { rendas:[], despesas:[] };
-    }
-    save();
-  }
-  return state.gastos[key];
+      }
+    : { locked:false, rendas:[], despesas:[] };
+  state.gastos[key] = fresh;
+  return fresh;
+}
+// Chame antes de salvar qualquer alteração manual num mês, para "confirmar" esse
+// mês como definitivo e ele parar de copiar automaticamente o mês anterior.
+function lockMonth(key){
+  if(state.gastos[key]) state.gastos[key].locked = true;
 }
 
 document.getElementById('prevMonth').addEventListener('click', ()=>{
@@ -832,6 +852,8 @@ function renderGastos(){
 
   document.getElementById('rendaCount').textContent = data.rendas.length;
   document.getElementById('gastoCount').textContent = data.despesas.length;
+  document.getElementById('rendaSum').textContent = brl(totalRenda);
+  document.getElementById('gastoSum').textContent = brl(totalGastos);
 
   // Cabeçalho fica azul quando todas as contas do mês já estão pagas
   const todasPagas = data.despesas.length>0 && totalFalta===0;
@@ -842,7 +864,7 @@ function renderGastos(){
   document.getElementById('rendaEmpty').style.display = data.rendas.length ? 'none':'block';
   data.rendas.slice().reverse().forEach(item=>{
     rl.appendChild(renderLedgerItem(item,'income',
-      ()=>{ data.rendas = data.rendas.filter(x=>x.id!==item.id); save(); renderGastos(); renderDashboard(); },
+      ()=>{ data.rendas = data.rendas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       null, null, null,
       ()=>{ openFormForEdit(document.getElementById('rendaForm'), f=>{
         f.querySelector('#rendaDesc').value = item.desc;
@@ -863,9 +885,9 @@ function renderGastos(){
   });
   despesasOrdenadas.forEach(item=>{
     gl.appendChild(renderLedgerItem(item,'expense',
-      ()=>{ data.despesas = data.despesas.filter(x=>x.id!==item.id); save(); renderGastos(); renderDashboard(); },
+      ()=>{ data.despesas = data.despesas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       item.categoria, item.status,
-      ()=>{ item.status = item.status==='pago' ? 'pendente' : 'pago'; save(); renderGastos(); renderDashboard(); },
+      ()=>{ item.status = item.status==='pago' ? 'pendente' : 'pago'; lockMonth(key); save(); renderGastos(); renderDashboard(); },
       ()=>{ openFormForEdit(document.getElementById('gastoForm'), f=>{
         f.querySelector('#gastoDesc').value = item.desc;
         f.querySelector('#gastoValor').value = item.valor;
@@ -927,7 +949,8 @@ document.getElementById('rendaForm').addEventListener('submit', e=>{
   const desc = document.getElementById('rendaDesc').value.trim();
   const valor = parseFloat(document.getElementById('rendaValor').value);
   if(!desc || isNaN(valor)) return;
-  const list = getMonthData(monthKey(currentDate)).rendas;
+  const key = monthKey(currentDate);
+  const list = getMonthData(key).rendas;
   const editId = e.target.dataset.editId;
   if(editId){
     const item = list.find(x=>x.id===editId);
@@ -935,6 +958,7 @@ document.getElementById('rendaForm').addEventListener('submit', e=>{
   } else {
     list.push({id:uid(), desc, valor});
   }
+  lockMonth(key);
   save();
   closeForm(e.target);
   renderGastos(); renderDashboard();
@@ -948,7 +972,8 @@ document.getElementById('gastoForm').addEventListener('submit', e=>{
   const status = document.getElementById('gastoStatus').value;
   const vencimento = document.getElementById('gastoVencimento').value || null;
   if(!desc || isNaN(valor)) return;
-  const list = getMonthData(monthKey(currentDate)).despesas;
+  const key = monthKey(currentDate);
+  const list = getMonthData(key).despesas;
   const editId = e.target.dataset.editId;
   if(editId){
     const item = list.find(x=>x.id===editId);
@@ -956,6 +981,7 @@ document.getElementById('gastoForm').addEventListener('submit', e=>{
   } else {
     list.push({id:uid(), desc, valor, categoria, status, vencimento});
   }
+  lockMonth(key);
   save();
   closeForm(e.target);
   renderGastos(); renderDashboard();
@@ -1213,6 +1239,7 @@ function wireCloudSync(){
         const cloudDoc = await window.CloudSync.buscarDaNuvem(user.uid);
         if(cloudDoc && cloudDoc.gestaoFinanceira){
           state = cloudDoc.gestaoFinanceira;
+          Object.values(state.gastos||{}).forEach(mes=>{ if(mes.locked===undefined) mes.locked = true; });
         } else {
           await pushStateToCloud();
         }
