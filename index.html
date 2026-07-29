@@ -146,6 +146,16 @@
     background:var(--surface-2);color:var(--ink-soft);font-size:11.5px;font-weight:700;
     padding:2px 8px;border-radius:20px;font-family:var(--font-mono);
   }
+  details.collapsible summary .sum-badge{
+    font-size:11.5px;font-weight:700;padding:2px 9px;
+    transition:font-size .18s ease,padding .18s ease,background .18s ease,color .18s ease,transform .18s ease;
+  }
+  details.collapsible:not([open]) summary .sum-badge{
+    font-size:15px;font-weight:800;padding:5px 13px;
+  }
+  details.collapsible:not([open]) summary .sum-badge.income{background:var(--green-600);color:#fff;}
+  details.collapsible:not([open]) summary .sum-badge.expense{background:var(--yellow-500);color:#3a2c05;}
+  details.collapsible:not([open]) summary .sum-badge.debt{background:var(--red-500);color:#fff;}
   .details-body{padding:0 16px 16px;}
 
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -317,33 +327,12 @@
   .modal .btn-block + .btn-block{margin-top:10px;}
   .modal-divider{height:1px;background:var(--line);margin:16px 0;}
 
-  /* login screen */
-  #loginScreen{
-    position:fixed;inset:0;z-index:100;background:var(--green-900);
-    display:none;align-items:center;justify-content:center;padding:20px;
-  }
-  #loginScreen.open{display:flex;}
-  .login-card{
-    background:var(--surface);color:var(--ink);width:100%;max-width:380px;
-    border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
-  }
-  .login-card .mark{
-    width:48px;height:48px;border-radius:13px;margin:0 auto 14px;
-    background:linear-gradient(155deg,var(--green-500),var(--green-700));
-    display:flex;align-items:center;justify-content:center;
-  }
-  .login-card .mark .material-symbols-outlined{color:#eafff0;font-size:26px;}
-  .login-card h2{font-family:var(--font-display);text-align:center;margin:0 0 4px;font-size:19px;}
-  .login-card p.sub{text-align:center;font-size:12.5px;color:var(--ink-soft);margin:0 0 20px;}
+  /* login (agora embutido no modal de Ferramentas) */
   .login-error{
     background:rgba(217,95,95,.12);color:var(--red-600);font-size:12.5px;
     padding:9px 11px;border-radius:9px;margin-bottom:12px;display:none;
   }
   .login-error.show{display:block;}
-  .login-loading{display:none;align-items:center;justify-content:center;height:100%;position:fixed;inset:0;z-index:99;background:var(--green-900);}
-  .login-loading.open{display:flex;}
-  .spinner{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;animation:spin .8s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg)}}
 
   @media (min-width:860px){
     body{padding-bottom:0;}
@@ -368,25 +357,6 @@
 </head>
 <body data-theme="light">
 
-<!-- ================= LOADING (firebase auth check) ================= -->
-<div class="login-loading" id="authLoading"><div class="spinner"></div></div>
-
-<!-- ================= LOGIN SCREEN ================= -->
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="mark"><span class="material-symbols-outlined">savings</span></div>
-    <h2>Gestão Financeira</h2>
-    <p class="sub">Entre com seu e-mail e senha para sincronizar seus dados</p>
-    <div class="login-error" id="loginError"></div>
-    <form id="loginForm">
-      <div class="field" style="margin-bottom:10px;"><label>E-mail</label><input type="email" id="loginEmail" required autocomplete="email"></div>
-      <div class="field" style="margin-bottom:16px;"><label>Senha</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
-      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-      <button type="button" id="btnCriarConta" class="btn btn-ghost btn-block" style="margin-top:9px;">Criar conta</button>
-    </form>
-  </div>
-</div>
-
 <div class="topbar">
   <div class="brand">
     <div class="mark"><span class="material-symbols-outlined">savings</span></div>
@@ -398,9 +368,6 @@
   <div class="top-actions">
     <button class="icon-btn" id="toolsToggle" aria-label="Ferramentas">
       <span class="material-symbols-outlined">build</span>
-    </button>
-    <button class="icon-btn" id="logoutBtn" aria-label="Sair" style="display:none;">
-      <span class="material-symbols-outlined">logout</span>
     </button>
     <button class="icon-btn" id="themeToggle" aria-label="Alternar tema">
       <span class="material-symbols-outlined">dark_mode</span>
@@ -473,7 +440,7 @@
       </div>
 
       <details class="card collapsible" open id="detRenda">
-        <summary><span class="material-symbols-outlined">trending_up</span>Renda<span class="count" id="rendaCount">0</span><span class="count" id="rendaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">trending_up</span>Renda<span class="count" id="rendaCount">0</span><span class="count sum-badge income" id="rendaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
           <div id="rendaList"></div>
           <div id="rendaEmpty" class="empty">
@@ -493,7 +460,7 @@
       </details>
 
       <details class="card collapsible" open id="detGastos">
-        <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="count" id="gastoSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="count sum-badge expense" id="gastoSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
           <div id="gastoList"></div>
           <div id="gastoEmpty" class="empty">
@@ -540,7 +507,7 @@
       <!-- Cartões -->
       <div class="sub-panel active" id="sub-cartoes">
         <details class="card collapsible" open id="detCartoes">
-          <summary><span class="material-symbols-outlined">credit_card</span>Cartões cadastrados<span class="count" id="cartoesCount">0</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+          <summary><span class="material-symbols-outlined">credit_card</span>Cartões cadastrados<span class="count" id="cartoesCount">0</span><span class="count sum-badge debt" id="cartoesSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
           <div class="details-body">
             <div id="cartoesList"></div>
             <div id="cartoesEmpty" class="empty">
@@ -563,7 +530,7 @@
       <!-- Outras dívidas -->
       <div class="sub-panel" id="sub-outras">
         <details class="card collapsible" open id="detOutras">
-          <summary><span class="material-symbols-outlined">receipt</span>Dívidas cadastradas<span class="count" id="outrasCount">0</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+          <summary><span class="material-symbols-outlined">receipt</span>Dívidas cadastradas<span class="count" id="outrasCount">0</span><span class="count sum-badge debt" id="outrasSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
           <div class="details-body">
             <div id="outrasList"></div>
             <div id="outrasEmpty" class="empty">
@@ -606,7 +573,37 @@
       <h3>Ferramentas</h3>
       <button class="icon-btn" id="closeTools" style="background:var(--surface-2);color:var(--ink);"><span class="material-symbols-outlined">close</span></button>
     </div>
-    <p class="hint">Exporte um backup dos seus dados, importe um arquivo salvo anteriormente ou apague tudo para recomeçar.</p>
+
+    <h2 class="section-title" style="margin-top:0;"><span class="material-symbols-outlined">cloud</span>Conta e sincronização</h2>
+
+    <!-- Estado: deslogado -->
+    <div id="accountLoggedOut">
+      <p class="hint" style="margin-top:0;">O app funciona normalmente sem login, salvando tudo neste aparelho. Entre com sua conta só se quiser sincronizar entre dispositivos.</p>
+      <div class="login-error" id="loginError"></div>
+      <form id="loginForm">
+        <div class="field" style="margin-bottom:10px;"><label>E-mail</label><input type="email" id="loginEmail" autocomplete="email"></div>
+        <div class="field" style="margin-bottom:12px;"><label>Senha</label><input type="password" id="loginPassword" autocomplete="current-password"></div>
+        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+        <button type="button" id="btnCriarConta" class="btn btn-ghost btn-block" style="margin-top:9px;">Criar conta</button>
+      </form>
+    </div>
+
+    <!-- Estado: logado -->
+    <div id="accountLoggedIn" style="display:none;">
+      <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;">
+        <span class="material-symbols-outlined" style="color:var(--green-600);">check_circle</span>
+        <div style="min-width:0;">
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:600;">Conectado como</div>
+          <div id="accountEmail" style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-block" id="logoutBtn" style="margin-top:10px;"><span class="material-symbols-outlined">logout</span>Sair da conta</button>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <h2 class="section-title" style="margin-top:0;"><span class="material-symbols-outlined">backup</span>Backup</h2>
+    <p class="hint" style="margin-top:0;">Exporte um backup dos seus dados, importe um arquivo salvo anteriormente ou apague tudo para recomeçar.</p>
     <button class="btn btn-ghost btn-block" id="btnExport"><span class="material-symbols-outlined">download</span>Exportar backup (.json)</button>
     <label class="btn btn-ghost btn-block" for="importFile" style="cursor:pointer;"><span class="material-symbols-outlined">upload</span>Importar backup</label>
     <input type="file" id="importFile" accept="application/json" style="display:none;">
@@ -992,6 +989,7 @@ function renderCartoes(){
   const list = document.getElementById('cartoesList');
   list.innerHTML='';
   document.getElementById('cartoesCount').textContent = state.cartoes.length;
+  document.getElementById('cartoesSum').textContent = brl(state.cartoes.reduce((s,c)=>s+Number(c.saldo||0),0));
   document.getElementById('cartoesEmpty').style.display = state.cartoes.length ? 'none':'block';
   state.cartoes.forEach(c=>{
     const card = document.createElement('div');
@@ -1039,6 +1037,7 @@ function renderOutras(){
   const list = document.getElementById('outrasList');
   list.innerHTML='';
   document.getElementById('outrasCount').textContent = state.outras.length;
+  document.getElementById('outrasSum').textContent = brl(state.outras.reduce((s,d)=>s+Math.max(0,Number(d.total||0)-Number(d.pago||0)),0));
   document.getElementById('outrasEmpty').style.display = state.outras.length ? 'none':'block';
   state.outras.forEach(d=>{
     const pct = d.total>0 ? Math.min(100,(d.pago/d.total)*100) : 0;
@@ -1221,25 +1220,37 @@ if('serviceWorker' in navigator){
 <!-- ============ Módulo de nuvem (usa o cloud-sync.js do seu outro app) ============ -->
 <script type="module" src="cloud-sync.js"></script>
 <script>
-document.getElementById('authLoading').classList.add('open');
-
 function wireCloudSync(){
   if(!window.CloudSync){
     window.addEventListener('cloudsync-pronto', wireCloudSync, {once:true});
     return;
   }
-  document.getElementById('logoutBtn').style.display = 'flex';
 
+  function showLoggedOut(){
+    document.getElementById('accountLoggedOut').style.display = 'block';
+    document.getElementById('accountLoggedIn').style.display = 'none';
+  }
+  function showLoggedIn(email){
+    document.getElementById('accountLoggedOut').style.display = 'none';
+    document.getElementById('accountLoggedIn').style.display = 'block';
+    document.getElementById('accountEmail').textContent = email || '—';
+  }
+
+  // Não bloqueia o app: só reage quando o estado de login muda em segundo plano.
   window.CloudSync.onAuthStateChanged(async user=>{
-    document.getElementById('authLoading').classList.remove('open');
     if(user){
       currentUser = user;
-      document.getElementById('loginScreen').classList.remove('open');
+      showLoggedIn(user.email);
       try{
         const cloudDoc = await window.CloudSync.buscarDaNuvem(user.uid);
         if(cloudDoc && cloudDoc.gestaoFinanceira){
-          state = cloudDoc.gestaoFinanceira;
-          Object.values(state.gastos||{}).forEach(mes=>{ if(mes.locked===undefined) mes.locked = true; });
+          const temDadosLocais = state.cartoes.length || state.outras.length || Object.keys(state.gastos).length;
+          if(!temDadosLocais || confirm('Encontramos dados salvos na nuvem para essa conta. Deseja carregar esses dados agora? (isso substitui os dados deste aparelho)')){
+            state = cloudDoc.gestaoFinanceira;
+            Object.values(state.gastos||{}).forEach(mes=>{ if(mes.locked===undefined) mes.locked = true; });
+          } else {
+            await pushStateToCloud();
+          }
         } else {
           await pushStateToCloud();
         }
@@ -1248,7 +1259,7 @@ function wireCloudSync(){
       renderGastos(); renderCartoes(); renderOutras(); renderDashboard();
     } else {
       currentUser = null;
-      document.getElementById('loginScreen').classList.add('open');
+      showLoggedOut();
     }
   });
 
@@ -1258,6 +1269,11 @@ function wireCloudSync(){
     const pass = document.getElementById('loginPassword').value;
     const errEl = document.getElementById('loginError');
     errEl.classList.remove('show');
+    if(!email || !pass){
+      errEl.textContent = 'Preencha e-mail e senha.';
+      errEl.classList.add('show');
+      return;
+    }
     window.CloudSync.login(email, pass).catch(()=>{
       errEl.textContent = 'E-mail ou senha incorretos.';
       errEl.classList.add('show');
@@ -1281,12 +1297,11 @@ function wireCloudSync(){
   });
 
   document.getElementById('logoutBtn').addEventListener('click', ()=>{
-    if(!confirm('Deseja sair da sua conta?')) return;
+    if(!confirm('Deseja sair da sua conta? Seus dados continuam salvos neste aparelho.')) return;
     window.CloudSync.logout();
   });
 }
 wireCloudSync();
-</script>
 </script>
 </body>
 </html>
