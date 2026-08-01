@@ -602,6 +602,12 @@
 
     <div class="modal-divider"></div>
 
+    <h2 class="section-title" style="margin-top:0;"><span class="material-symbols-outlined">content_copy</span>Repetir mês anterior</h2>
+    <p class="hint" style="margin-top:0;">Importa a renda e as despesas do mês anterior para <b id="importTargetLabel">—</b> (o mês que está aberto em Gastos Mensais), assim você não precisa redigitar tudo todo mês. As despesas entram como pendentes; nada em meses futuros é preenchido sozinho.</p>
+    <button class="btn btn-primary btn-block" id="btnImportarMesAnterior"><span class="material-symbols-outlined">content_copy</span>Importar mês anterior</button>
+
+    <div class="modal-divider"></div>
+
     <h2 class="section-title" style="margin-top:0;"><span class="material-symbols-outlined">backup</span>Backup</h2>
     <p class="hint" style="margin-top:0;">Exporte um backup dos seus dados, importe um arquivo salvo anteriormente ou apague tudo para recomeçar.</p>
     <button class="btn btn-ghost btn-block" id="btnExport"><span class="material-symbols-outlined">download</span>Exportar backup (.json)</button>
@@ -629,8 +635,14 @@ function loadState(){
       const parsed = JSON.parse(raw);
       // Migração: meses salvos por versões antigas do app não tinham o campo
       // "locked". Marcamos todos como travados para preservar o que já foi
-      // lançado; só os meses novos (ainda não tocados) vão herdar automaticamente.
+      // lançado.
       Object.values(parsed.gastos||{}).forEach(mes=>{ if(mes.locked===undefined) mes.locked = true; });
+      // Limpeza: versões antigas geravam automaticamente uma "prévia" (mês não
+      // travado) para qualquer mês futuro visitado. Isso não acontece mais —
+      // removemos essas prévias para que meses futuros fiquem em branco de novo.
+      Object.keys(parsed.gastos||{}).forEach(k=>{
+        if(parsed.gastos[k] && !parsed.gastos[k].locked) delete parsed.gastos[k];
+      });
       return parsed;
     }
   }catch(e){}
@@ -788,11 +800,10 @@ function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart
 function monthLabelFor(d){ return MONTHS[d.getMonth()] + ' de ' + d.getFullYear(); }
 
 // Só um mês "travado" (locked) conta como fonte real de dados: um mês fica travado
-// assim que o usuário adiciona, edita, exclui ou marca como pago algo nele.
-// Meses ainda não tocados pelo usuário são apenas uma "prévia" recalculada a partir
-// do mês travado mais recente — assim, ao editar o mês atual, todo mês futuro que
-// ainda não foi mexido acompanha a mudança automaticamente, em vez de ficar
-// congelado com os dados antigos só por ter sido visualizado.
+// assim que o usuário adiciona, edita, exclui ou marca como pago algo nele, ou
+// quando os dados do mês anterior são importados manualmente (botão em
+// Ferramentas > Repetir mês anterior). Meses ainda não tocados ficam
+// completamente em branco — não há mais cópia automática do mês anterior.
 function findPreviousMonthData(key){
   const [y,m] = key.split('-').map(Number);
   let d = new Date(y, m-2, 1);
@@ -806,16 +817,8 @@ function findPreviousMonthData(key){
 }
 function getMonthData(key){
   const existing = state.gastos[key];
-  if(existing && existing.locked) return existing;
-
-  const prev = findPreviousMonthData(key);
-  const fresh = prev
-    ? {
-        locked:false,
-        rendas: prev.rendas.map(r=>({...r, id:uid()})),
-        despesas: prev.despesas.map(d=>({...d, id:uid(), status:'pendente'}))
-      }
-    : { locked:false, rendas:[], despesas:[] };
+  if(existing) return existing;
+  const fresh = { locked:false, rendas:[], despesas:[] };
   state.gastos[key] = fresh;
   return fresh;
 }
@@ -1148,9 +1151,41 @@ function renderDashboard(){
 
 /* ============ Ferramentas: backup / importar / excluir tudo ============ */
 const toolsModal = document.getElementById('toolsModal');
-document.getElementById('toolsToggle').addEventListener('click', ()=> toolsModal.classList.add('open'));
+document.getElementById('toolsToggle').addEventListener('click', ()=>{
+  document.getElementById('importTargetLabel').textContent = monthLabelFor(currentDate);
+  toolsModal.classList.add('open');
+});
 document.getElementById('closeTools').addEventListener('click', ()=> toolsModal.classList.remove('open'));
 toolsModal.addEventListener('click', e=>{ if(e.target===toolsModal) toolsModal.classList.remove('open'); });
+
+// Importa renda + despesas do mês anterior travado para o mês que está aberto
+// em Gastos Mensais (currentDate). Nada é copiado automaticamente para meses
+// futuros — só acontece quando o usuário clica neste botão.
+document.getElementById('btnImportarMesAnterior').addEventListener('click', ()=>{
+  const key = monthKey(currentDate);
+  const prev = findPreviousMonthData(key);
+  if(!prev || (!prev.rendas.length && !prev.despesas.length)){
+    alert('Não encontrei nenhum mês anterior com lançamentos para importar.');
+    return;
+  }
+  const atual = state.gastos[key];
+  const temDados = atual && atual.locked && (atual.rendas.length || atual.despesas.length);
+  const msg = temDados
+    ? `Isso vai substituir os lançamentos de ${monthLabelFor(currentDate)} pelos dados do mês anterior (as despesas entram como pendentes). Continuar?`
+    : `Importar renda e despesas do mês anterior para ${monthLabelFor(currentDate)}?`;
+  if(!confirm(msg)) return;
+
+  state.gastos[key] = {
+    locked: true,
+    rendas: prev.rendas.map(r=>({...r, id:uid()})),
+    despesas: prev.despesas.map(d=>({...d, id:uid(), status:'pendente'}))
+  };
+  save();
+  renderGastos();
+  renderDashboard();
+  toolsModal.classList.remove('open');
+  alert(`Lançamentos de ${monthLabelFor(currentDate)} importados com sucesso!`);
+});
 
 document.getElementById('btnExport').addEventListener('click', ()=>{
   const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
