@@ -888,8 +888,11 @@ function renderGastos(){
   const gl = document.getElementById('gastoList');
   gl.innerHTML='';
   document.getElementById('gastoEmpty').style.display = data.despesas.length ? 'none':'block';
-  // Organiza automaticamente por data de vencimento (contas sem data ficam por último)
+  // Pendentes primeiro (ordenadas por vencimento), pagas agrupadas no final da lista
   const despesasOrdenadas = data.despesas.slice().sort((a,b)=>{
+    const aPago = a.status==='pago' ? 1 : 0;
+    const bPago = b.status==='pago' ? 1 : 0;
+    if(aPago!==bPago) return aPago-bPago;
     if(!a.vencimento && !b.vencimento) return 0;
     if(!a.vencimento) return 1;
     if(!b.vencimento) return -1;
@@ -899,7 +902,13 @@ function renderGastos(){
     gl.appendChild(renderLedgerItem(item,'expense',
       ()=>{ data.despesas = data.despesas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       item.categoria, item.status,
-      ()=>{ item.status = item.status==='pago' ? 'pendente' : 'pago'; lockMonth(key); save(); renderGastos(); renderDashboard(); },
+      ()=>{
+        const vaiPagar = item.status!=='pago';
+        const msg = vaiPagar ? `Marcar "${item.desc}" como paga?` : `Marcar "${item.desc}" como pendente novamente?`;
+        if(!confirm(msg)) return;
+        item.status = vaiPagar ? 'pago' : 'pendente';
+        lockMonth(key); save(); renderGastos(); renderDashboard();
+      },
       ()=>{ openFormForEdit(document.getElementById('gastoForm'), f=>{
         f.querySelector('#gastoDesc').value = item.desc;
         f.querySelector('#gastoValor').value = item.valor;
