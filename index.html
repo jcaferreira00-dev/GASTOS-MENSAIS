@@ -353,6 +353,24 @@
     main{padding:26px 30px 40px;}
     .stat-grid{grid-template-columns:repeat(4,1fr);}
   }
+body.privacy-on .value,
+body.privacy-on .li-value,
+body.privacy-on .sum-badge,
+body.privacy-on .debt-numbers b,
+body.privacy-on .bar-row-top b,
+body.privacy-on .leg-row b{
+  filter: blur(7px);
+  user-select: none;
+  transition: filter .15s ease;
+}
+body.privacy-on .value:hover,
+body.privacy-on .li-value:hover,
+body.privacy-on .sum-badge:hover,
+body.privacy-on .debt-numbers b:hover,
+body.privacy-on .bar-row-top b:hover,
+body.privacy-on .leg-row b:hover{
+  filter: blur(0);
+}
 </style>
 </head>
 <body data-theme="light">
@@ -366,6 +384,9 @@
     </div>
   </div>
   <div class="top-actions">
+    <button class="icon-btn" id="privacyToggle" aria-label="Ocultar valores">
+      <span class="material-symbols-outlined">visibility</span>
+    </button>
     <button class="icon-btn" id="toolsToggle" aria-label="Ferramentas">
       <span class="material-symbols-outlined">build</span>
     </button>
@@ -1178,6 +1199,21 @@ document.getElementById('toolsToggle').addEventListener('click', ()=>{
 });
 document.getElementById('closeTools').addEventListener('click', ()=> toolsModal.classList.remove('open'));
 toolsModal.addEventListener('click', e=>{ if(e.target===toolsModal) toolsModal.classList.remove('open'); });
+
+// Olhinho: oculta/mostra todos os valores em R$ da página (blur). Preferência
+// fica salva no navegador, então continua oculto/visível ao recarregar.
+const privacyBtn = document.getElementById('privacyToggle');
+function applyPrivacyMode(hidden){
+  document.body.classList.toggle('privacy-on', hidden);
+  privacyBtn.querySelector('.material-symbols-outlined').textContent = hidden ? 'visibility_off' : 'visibility';
+  privacyBtn.setAttribute('aria-label', hidden ? 'Mostrar valores' : 'Ocultar valores');
+}
+applyPrivacyMode(localStorage.getItem('valoresOcultos')==='1');
+privacyBtn.addEventListener('click', ()=>{
+  const hidden = !document.body.classList.contains('privacy-on');
+  applyPrivacyMode(hidden);
+  localStorage.setItem('valoresOcultos', hidden ? '1' : '0');
+});
 
 // Importa renda + despesas do mês anterior travado para o mês que está aberto
 // em Gastos Mensais (currentDate). Nada é copiado automaticamente para meses
