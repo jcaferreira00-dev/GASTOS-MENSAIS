@@ -603,7 +603,7 @@
     <div class="modal-divider"></div>
 
     <h2 class="section-title" style="margin-top:0;"><span class="material-symbols-outlined">content_copy</span>Repetir mês anterior</h2>
-    <p class="hint" style="margin-top:0;">Importa a renda e as despesas do mês anterior para <b id="importTargetLabel">—</b> (o mês que está aberto em Gastos Mensais), assim você não precisa redigitar tudo todo mês. As despesas entram como pendentes; nada em meses futuros é preenchido sozinho.</p>
+    <p class="hint" style="margin-top:0;">Importa a renda e as despesas do mês anterior para <b id="importTargetLabel">—</b> (o mês que está aberto em Gastos Mensais), assim você não precisa redigitar tudo todo mês. As despesas entram como pendentes e os vencimentos são ajustados automaticamente para o mesmo dia no novo mês. Nada em meses futuros é preenchido sozinho.</p>
     <button class="btn btn-primary btn-block" id="btnImportarMesAnterior"><span class="material-symbols-outlined">content_copy</span>Importar mês anterior</button>
 
     <div class="modal-divider"></div>
@@ -821,6 +821,18 @@ function getMonthData(key){
   const fresh = { locked:false, rendas:[], despesas:[] };
   state.gastos[key] = fresh;
   return fresh;
+}
+// Ao importar despesas de outro mês, mantém o mesmo dia do vencimento mas troca
+// mês/ano para o mês de destino (ex: vencia dia 10/01 -> passa a vencer 10/02).
+// Se o mês de destino não tiver esse dia (ex: dia 31 em fevereiro), usa o último
+// dia válido do mês.
+function shiftVencimentoParaMes(vencimento, targetKey){
+  if(!vencimento) return vencimento;
+  const day = Number(vencimento.split('-')[2]);
+  const [ty, tm] = targetKey.split('-').map(Number);
+  const lastDay = new Date(ty, tm, 0).getDate();
+  const finalDay = Math.min(day, lastDay);
+  return ty+'-'+String(tm).padStart(2,'0')+'-'+String(finalDay).padStart(2,'0');
 }
 // Chame antes de salvar qualquer alteração manual num mês, para "confirmar" esse
 // mês como definitivo e ele parar de copiar automaticamente o mês anterior.
@@ -1178,7 +1190,7 @@ document.getElementById('btnImportarMesAnterior').addEventListener('click', ()=>
   state.gastos[key] = {
     locked: true,
     rendas: prev.rendas.map(r=>({...r, id:uid()})),
-    despesas: prev.despesas.map(d=>({...d, id:uid(), status:'pendente'}))
+    despesas: prev.despesas.map(d=>({...d, id:uid(), status:'pendente', vencimento: shiftVencimentoParaMes(d.vencimento, key)}))
   };
   save();
   renderGastos();
