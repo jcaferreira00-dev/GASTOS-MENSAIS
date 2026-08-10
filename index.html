@@ -897,7 +897,7 @@ function renderGastos(){
   document.getElementById('rendaEmpty').style.display = data.rendas.length ? 'none':'block';
   data.rendas.slice().reverse().forEach(item=>{
     rl.appendChild(renderLedgerItem(item,'income',
-      ()=>{ data.rendas = data.rendas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
+      ()=>{ if(!confirm(`Excluir a renda "${item.desc}"?`)) return; data.rendas = data.rendas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       null, null, null,
       ()=>{ openFormForEdit(document.getElementById('rendaForm'), f=>{
         f.querySelector('#rendaDesc').value = item.desc;
@@ -921,7 +921,7 @@ function renderGastos(){
   });
   despesasOrdenadas.forEach(item=>{
     gl.appendChild(renderLedgerItem(item,'expense',
-      ()=>{ data.despesas = data.despesas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
+      ()=>{ if(!confirm(`Excluir a conta "${item.desc}"?`)) return; data.despesas = data.despesas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       item.categoria, item.status,
       ()=>{
         const vaiPagar = item.status!=='pago';
@@ -1056,6 +1056,7 @@ function renderCartoes(){
       }, c.id);
     });
     btns[1].addEventListener('click', ()=>{
+      if(!confirm(`Excluir o cartão "${c.nome}"?`)) return;
       state.cartoes = state.cartoes.filter(x=>x.id!==c.id); save(); renderCartoes(); renderDashboard();
     });
     list.appendChild(card);
@@ -1113,6 +1114,7 @@ function renderOutras(){
       }, d.id);
     });
     btns[1].addEventListener('click', ()=>{
+      if(!confirm(`Excluir "${d.nome}"?`)) return;
       state.outras = state.outras.filter(x=>x.id!==d.id); save(); renderOutras(); renderDashboard();
     });
     list.appendChild(card);
