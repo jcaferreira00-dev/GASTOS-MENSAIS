@@ -1206,8 +1206,8 @@ function renderDashboard(){
   const ultimoDia = new Date(qy, qm, 0).getDate();
 
   const rendasComData = data.rendas.filter(r=>r.data);
-  const despesasComVenc = data.despesas.filter(d=>d.vencimento && d.status!=='pago');
-  const semData = (data.rendas.length - rendasComData.length) + (data.despesas.filter(d=>!d.vencimento && d.status!=='pago').length);
+  const despesasComVenc = data.despesas.filter(d=>d.vencimento);
+  const semData = (data.rendas.length - rendasComData.length) + (data.despesas.length - despesasComVenc.length);
 
   const entraP1 = rendasComData.filter(r=>diaDe(r.data)<=14).reduce((s,r)=>s+Number(r.valor||0),0);
   const entraP2 = rendasComData.filter(r=>diaDe(r.data)>=15).reduce((s,r)=>s+Number(r.valor||0),0);
@@ -1228,12 +1228,15 @@ function renderDashboard(){
           <div class="stat pos"><div class="bar"></div><label>Entra no período</label><div class="value">${brl(entra)}</div></div>
           <div class="stat warn"><div class="bar"></div><label>Contas do período</label><div class="value">${brl(contas)}</div></div>
         </div>
-        <div class="stat ${falta?'neg':'info'}" style="margin-top:10px;"><div class="bar"></div><label>Saldo do período</label><div class="value">${falta?'− ':''}${brl(Math.abs(saldo))}</div></div>
+        <div class="stat ${falta?'neg':'info'}" style="margin-top:10px;"><div class="bar"></div><label>${falta?'Falta no período':'Sobra no período'}</label><div class="value">${falta?'− ':'+ '}${brl(Math.abs(saldo))}</div></div>
       </div>`;
   }
 
   const qc = document.getElementById('dashQuinzenaCard');
+  const saldoTotal = saldoP1 + saldoP2;
+  const faltaTotal = saldoTotal < 0;
   qc.innerHTML =
+    `<div class="stat ${faltaTotal?'neg':'pos'}" style="margin-bottom:14px;"><div class="bar"></div><label>${faltaTotal?'Total que vai faltar no mês':'Total que vai sobrar no mês'}</label><div class="value">${faltaTotal?'− ':'+ '}${brl(Math.abs(saldoTotal))}</div></div>` +
     quinzenaBloco(`Dia 01 a 14`, entraP1, contasP1, saldoP1) +
     `<div class="modal-divider"></div>` +
     quinzenaBloco(`Dia 15 a ${ultimoDia}`, entraP2, contasP2, saldoP2) +
