@@ -435,8 +435,14 @@ body.privacy-on .leg-row b:hover{
         </div>
       </div>
 
+      <h2 class="section-title"><span class="material-symbols-outlined">event_repeat</span>Fluxo por quinzena</h2>
+      <div class="card" id="dashQuinzenaCard"></div>
+
       <h2 class="section-title"><span class="material-symbols-outlined">bar_chart</span>Gastos por categoria</h2>
-      <div class="card" id="dashCategoriaCard"></div>
+      <details class="card collapsible" id="detCategoria">
+        <summary><span class="material-symbols-outlined">bar_chart</span>Ver detalhamento por categoria<span class="count sum-badge expense" id="dashCategoriaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <div class="details-body" id="dashCategoriaCard"></div>
+      </details>
 
       <h2 class="section-title"><span class="material-symbols-outlined">credit_card</span>Cartões de crédito</h2>
       <div class="card" id="dashCartoesCard"></div>
@@ -471,7 +477,10 @@ body.privacy-on .leg-row b:hover{
           <button class="add-toggle" data-form="rendaForm"><span class="material-symbols-outlined">add</span>Adicionar renda</button>
           <form class="add-form" id="rendaForm">
             <div class="field"><label>Descrição</label><input type="text" id="rendaDesc" placeholder="Ex: Salário, Vale" required></div>
-            <div class="field"><label>Valor (R$)</label><input type="number" id="rendaValor" step="0.01" min="0" placeholder="0,00" required></div>
+            <div class="row-2">
+              <div class="field"><label>Valor (R$)</label><input type="number" id="rendaValor" step="0.01" min="0" placeholder="0,00" required></div>
+              <div class="field"><label>Data</label><input type="date" id="rendaData" required></div>
+            </div>
             <div class="form-actions">
               <button type="submit" class="btn btn-primary btn-block">Salvar</button>
               <button type="button" class="btn btn-ghost" data-cancel="rendaForm">Cancelar</button>
@@ -701,8 +710,8 @@ function seedInitialData(){
   state.gastos[key] = {
     locked: true,
     rendas: [
-      {id:uid(), desc:'Vale dia 15', valor:4314.16},
-      {id:uid(), desc:'Pagamento dia 30', valor:7085.44}
+      {id:uid(), desc:'Vale dia 15', valor:4314.16, data:key+'-15'},
+      {id:uid(), desc:'Pagamento dia 30', valor:7085.44, data:key+'-30'}
     ],
     despesas: [
       {id:uid(), desc:'Processo', valor:500.00, categoria:'Jurídico', status:'pendente'},
@@ -895,14 +904,22 @@ function renderGastos(){
   const rl = document.getElementById('rendaList');
   rl.innerHTML='';
   document.getElementById('rendaEmpty').style.display = data.rendas.length ? 'none':'block';
-  data.rendas.slice().reverse().forEach(item=>{
+  const rendasOrdenadas = data.rendas.slice().sort((a,b)=>{
+    if(!a.data && !b.data) return 0;
+    if(!a.data) return 1;
+    if(!b.data) return -1;
+    return a.data.localeCompare(b.data);
+  });
+  rendasOrdenadas.forEach(item=>{
     rl.appendChild(renderLedgerItem(item,'income',
       ()=>{ if(!confirm(`Excluir a renda "${item.desc}"?`)) return; data.rendas = data.rendas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       null, null, null,
       ()=>{ openFormForEdit(document.getElementById('rendaForm'), f=>{
         f.querySelector('#rendaDesc').value = item.desc;
         f.querySelector('#rendaValor').value = item.valor;
-      }, item.id); }
+        f.querySelector('#rendaData').value = item.data || '';
+      }, item.id); },
+      item.data
     ));
   });
 
@@ -952,7 +969,7 @@ function renderLedgerItem(item,type,onDelete,categoria,status,onToggleStatus,onE
   row.className='ledger-item stacked';
   const metaBits = [];
   if(categoria) metaBits.push(categoria);
-  if(vencimento) metaBits.push('vence '+formatDataBR(vencimento));
+  if(vencimento) metaBits.push((type==='income'?'recebe ':'vence ')+formatDataBR(vencimento));
   const meta = metaBits.join(' · ');
 
   let chipClass = status, chipLabel = status==='pago' ? 'Pago' : 'Pendente';
@@ -990,15 +1007,16 @@ document.getElementById('rendaForm').addEventListener('submit', e=>{
   e.preventDefault();
   const desc = document.getElementById('rendaDesc').value.trim();
   const valor = parseFloat(document.getElementById('rendaValor').value);
+  const dataRenda = document.getElementById('rendaData').value || null;
   if(!desc || isNaN(valor)) return;
   const key = monthKey(currentDate);
   const list = getMonthData(key).rendas;
   const editId = e.target.dataset.editId;
   if(editId){
     const item = list.find(x=>x.id===editId);
-    if(item){ item.desc=desc; item.valor=valor; }
+    if(item){ item.desc=desc; item.valor=valor; item.data=dataRenda; }
   } else {
-    list.push({id:uid(), desc, valor});
+    list.push({id:uid(), desc, valor, data:dataRenda});
   }
   lockMonth(key);
   save();
@@ -1170,6 +1188,7 @@ function renderDashboard(){
   data.despesas.forEach(d=>{ catMap[d.categoria||'Outros'] = (catMap[d.categoria||'Outros']||0)+Number(d.valor||0); });
   const catEntries = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
   const catCard = document.getElementById('dashCategoriaCard');
+  document.getElementById('dashCategoriaSum').textContent = brl(totalGastos);
   if(!catEntries.length){
     catCard.innerHTML = `<div class="empty"><span class="material-symbols-outlined">bar_chart</span><p>Nenhum gasto lançado neste mês.</p></div>`;
   } else {
@@ -1180,6 +1199,45 @@ function renderDashboard(){
         <div class="bar-track"><div class="bar-fill" style="width:${max?(val/max*100):0}%"></div></div>
       </div>`).join('');
   }
+
+  /* ---- Fluxo por quinzena (dia 01–14 e dia 15–fim do mês) ---- */
+  const diaDe = iso => iso ? Number(iso.split('-')[2]) : null;
+  const [qy, qm] = key.split('-').map(Number);
+  const ultimoDia = new Date(qy, qm, 0).getDate();
+
+  const rendasComData = data.rendas.filter(r=>r.data);
+  const despesasComVenc = data.despesas.filter(d=>d.vencimento && d.status!=='pago');
+  const semData = (data.rendas.length - rendasComData.length) + (data.despesas.filter(d=>!d.vencimento && d.status!=='pago').length);
+
+  const entraP1 = rendasComData.filter(r=>diaDe(r.data)<=14).reduce((s,r)=>s+Number(r.valor||0),0);
+  const entraP2 = rendasComData.filter(r=>diaDe(r.data)>=15).reduce((s,r)=>s+Number(r.valor||0),0);
+  const contasP1 = despesasComVenc.filter(d=>diaDe(d.vencimento)<=14).reduce((s,d)=>s+Number(d.valor||0),0);
+  const contasP2 = despesasComVenc.filter(d=>diaDe(d.vencimento)>=15).reduce((s,d)=>s+Number(d.valor||0),0);
+  const saldoP1 = entraP1 - contasP1;
+  const saldoP2 = entraP2 - contasP2;
+
+  function quinzenaBloco(titulo, entra, contas, saldo){
+    const falta = saldo < 0;
+    return `
+      <div style="margin-bottom:6px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;">
+          <span style="font-weight:700;font-family:var(--font-display);font-size:13.5px;">${titulo}</span>
+          ${falta?'<button type="button" class="chip atrasado" style="border:none;">Vai faltar dinheiro</button>':'<button type="button" class="chip pago" style="border:none;">Dinheiro cobre as contas</button>'}
+        </div>
+        <div class="stat-grid">
+          <div class="stat pos"><div class="bar"></div><label>Entra no período</label><div class="value">${brl(entra)}</div></div>
+          <div class="stat warn"><div class="bar"></div><label>Contas do período</label><div class="value">${brl(contas)}</div></div>
+        </div>
+        <div class="stat ${falta?'neg':'info'}" style="margin-top:10px;"><div class="bar"></div><label>Saldo do período</label><div class="value">${falta?'− ':''}${brl(Math.abs(saldo))}</div></div>
+      </div>`;
+  }
+
+  const qc = document.getElementById('dashQuinzenaCard');
+  qc.innerHTML =
+    quinzenaBloco(`Dia 01 a 14`, entraP1, contasP1, saldoP1) +
+    `<div class="modal-divider"></div>` +
+    quinzenaBloco(`Dia 15 a ${ultimoDia}`, entraP2, contasP2, saldoP2) +
+    (semData ? `<p style="font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin:12px 0 0;">${semData} lançamento(s) sem data não ${semData===1?'entrou':'entraram'} nessa conta — edite e adicione a data para incluir.</p>` : '');
 
   const cc = document.getElementById('dashCartoesCard');
   if(state.cartoes.length===0){
