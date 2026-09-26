@@ -262,8 +262,12 @@
   .debt-head h3{margin:0;font-size:15px;font-family:var(--font-display);}
   .debt-head .tag{font-size:11px;color:var(--ink-soft);font-weight:500;}
   .debt-head .actions{display:flex;gap:2px;flex:none;}
-  .debt-numbers{display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px;color:var(--ink-soft);}
-  .debt-numbers b{display:block;font-family:var(--font-mono);color:var(--ink);font-size:14px;font-weight:600;}
+  .debt-numbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;font-size:11.5px;color:var(--ink-soft);}
+  .debt-numbers div{min-width:0;}
+  .debt-numbers div:first-child{text-align:left;}
+  .debt-numbers div:nth-child(2){text-align:center;}
+  .debt-numbers div:last-child{text-align:right;}
+  .debt-numbers b{display:block;font-family:var(--font-mono);color:var(--ink);font-size:12.5px;font-weight:600;margin-top:2px;white-space:normal;overflow-wrap:break-word;line-height:1.28;}
 
   /* segmented control for sub-tabs */
   .segmented{display:flex;background:var(--surface-2);border-radius:11px;padding:3px;gap:3px;margin-bottom:14px;}
@@ -426,7 +430,10 @@ body.privacy-on .leg-row b:hover{
       </div>
 
       <h2 class="section-title"><span class="material-symbols-outlined">event_repeat</span>Fluxo por quinzena</h2>
-      <div class="card" id="dashQuinzenaCard"></div>
+      <details class="card collapsible" id="detQuinzena">
+        <summary><span class="material-symbols-outlined">event_repeat</span>Ver detalhamento por quinzena<span class="count sum-badge" id="dashQuinzenaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <div class="details-body" id="dashQuinzenaCard"></div>
+      </details>
 
       <h2 class="section-title"><span class="material-symbols-outlined">bar_chart</span>Gastos por categoria</h2>
       <details class="card collapsible" id="detCategoria">
@@ -446,6 +453,9 @@ body.privacy-on .leg-row b:hover{
         <div class="value" id="statDividas" style="font-family:var(--font-mono);font-weight:700;font-size:17px;">R$ 0,00</div>
       </div>
       <div class="card" id="dashCartoesCard"></div>
+
+      <h2 class="section-title"><span class="material-symbols-outlined">receipt</span>Outras dívidas</h2>
+      <div id="dashOutrasCard"></div>
     </section>
 
 
@@ -1110,7 +1120,7 @@ function renderOutras(){
     card.className='card debt-card';
     card.innerHTML = `
       <div class="debt-head">
-        <div><h3>${escapeHtml(d.nome)}</h3><span class="tag">${d.prazo?d.prazo+' meses · ':''}${d.parcela?brl(d.parcela)+'/mês':'sem parcela definida'}</span></div>
+        <div><h3>${escapeHtml(d.nome)}</h3><span class="tag">${d.prazo?d.prazo+' meses restantes · ':''}${d.parcela?brl(d.parcela)+'/mês':'sem parcela definida'}</span></div>
         <div class="actions">
           <button class="icon-sm-btn" aria-label="Editar"><span class="material-symbols-outlined">edit</span></button>
           <button class="icon-sm-btn danger" aria-label="Remover"><span class="material-symbols-outlined">delete</span></button>
@@ -1236,8 +1246,11 @@ function renderDashboard(){
   const qc = document.getElementById('dashQuinzenaCard');
   const saldoTotal = saldoP1 + saldoP2;
   const faltaTotal = saldoTotal < 0;
+  const quinzenaSumEl = document.getElementById('dashQuinzenaSum');
+  quinzenaSumEl.textContent = (faltaTotal?'− ':'+ ')+brl(Math.abs(saldoTotal));
+  quinzenaSumEl.classList.toggle('debt', faltaTotal);
+  quinzenaSumEl.classList.toggle('income', !faltaTotal);
   qc.innerHTML =
-    `<div class="stat ${faltaTotal?'neg':'pos'}" style="margin-bottom:14px;"><div class="bar"></div><label>${faltaTotal?'Total que vai faltar no mês':'Total que vai sobrar no mês'}</label><div class="value">${faltaTotal?'− ':'+ '}${brl(Math.abs(saldoTotal))}</div></div>` +
     quinzenaBloco(`Dia 01 a 14`, entraP1, contasP1, saldoP1) +
     `<div class="modal-divider"></div>` +
     quinzenaBloco(`Dia 15 a ${ultimoDia}`, entraP2, contasP2, saldoP2) +
@@ -1252,6 +1265,28 @@ function renderDashboard(){
         <div class="ledger-main"><span class="dot expense"></span><div class="li-text"><span class="desc">${escapeHtml(c.nome)}</span></div></div>
         <div class="li-right"><span class="li-value expense">${brl(c.saldo)}</span></div>
       </div>`).join('');
+  }
+
+  const oc = document.getElementById('dashOutrasCard');
+  if(state.outras.length===0){
+    oc.innerHTML = `<div class="card"><div class="empty"><span class="material-symbols-outlined">receipt</span><p>Nenhuma dívida cadastrada.</p></div></div>`;
+  } else {
+    oc.innerHTML = state.outras.map(d=>{
+      const restante = Math.max(0, Number(d.total||0)-Number(d.pago||0));
+      const pct = d.total>0 ? Math.min(100,(d.pago/d.total)*100) : 0;
+      return `
+      <div class="card debt-card">
+        <div class="debt-head">
+          <div><h3>${escapeHtml(d.nome)}</h3><span class="tag">${d.prazo?d.prazo+' meses restantes · ':''}${d.parcela?brl(d.parcela)+'/mês':'sem parcela definida'}</span></div>
+        </div>
+        <div class="debt-numbers">
+          <div>Pago<b>${brl(d.pago)}</b></div>
+          <div>Restante<b>${brl(restante)}</b></div>
+          <div>Total<b>${brl(d.total)}</b></div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
   }
 }
 
@@ -1344,8 +1379,36 @@ document.getElementById('btnDeleteAll').addEventListener('click', ()=>{
   location.reload();
 });
 
+/* ============ Progressão automática das parcelas (Outras dívidas) ============ */
+// Toda vez que o app é aberto em um mês-calendário novo (diferente do último
+// processado para aquela dívida), o valor da parcela é somado ao "pago" e o
+// prazo restante diminui em 1 — sem precisar editar manualmente todo mês.
+// Na primeira vez que uma dívida é vista, só marca o mês atual (não desconta
+// retroativo).
+function processarParcelasAutomaticas(){
+  const hoje = new Date();
+  const mesAtual = hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0');
+  let mudou = false;
+  (state.outras||[]).forEach(d=>{
+    if(!d.parcela || Number(d.parcela)<=0) return;
+    if(d.ultimoMes === mesAtual) return;
+    const restante = Math.max(0, Number(d.total||0)-Number(d.pago||0));
+    if(!d.ultimoMes){
+      d.ultimoMes = mesAtual;
+      return;
+    }
+    if(restante<=0){ d.ultimoMes = mesAtual; return; }
+    d.pago = Math.min(Number(d.total||0), Number(d.pago||0)+Number(d.parcela||0));
+    if(d.prazo>0) d.prazo = Math.max(0, Number(d.prazo)-1);
+    d.ultimoMes = mesAtual;
+    mudou = true;
+  });
+  if(mudou) save();
+}
+
 /* ============ Init ============ */
 if(isFirstRun) seedInitialData();
+processarParcelasAutomaticas();
 renderGastos();
 renderCartoes();
 renderOutras();
@@ -1411,6 +1474,7 @@ function wireCloudSync(){
           await pushStateToCloud();
         }
       }catch(e){ console.error('Erro ao buscar dados da nuvem:', e); }
+      processarParcelasAutomaticas();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderGastos(); renderCartoes(); renderOutras(); renderDashboard();
     } else {
