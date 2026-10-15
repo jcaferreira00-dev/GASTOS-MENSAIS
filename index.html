@@ -898,7 +898,10 @@ async function pushStateToCloud(){
   }catch(e){ console.error('Erro ao salvar na nuvem:', e); }
 }
 
-function save(){
+// marcarAlteracao=false: salvamento automático (dados iniciais, parcelas do mês),
+// que não deve contar como alteração mais nova que a da nuvem.
+function save(marcarAlteracao){
+  if(marcarAlteracao !== false) state.atualizadoEm = Date.now();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   if(currentUser){
     clearTimeout(fbSaveTimer);
@@ -946,7 +949,7 @@ function seedInitialData(){
   state.outras = [
     {id:uid(), nome:'FIES', total:64362.50, pago:0, parcela:514.90, prazo:0}
   ];
-  save();
+  save(false);
 }
 
 /* ============ Tema ============ */
@@ -1033,6 +1036,7 @@ function closeForm(form, manterPainel){
 }
 function tryCloseSheet(){
   const aberto = document.querySelector('#formSheet .add-form.open');
+  if(aberto && formHasData(aberto) && !confirm('Você tem dados não salvos. Deseja realmente cancelar?')) return;
   if(aberto) closeForm(aberto); else formSheet.classList.remove('open');
 }
 document.querySelectorAll('[data-open-form]').forEach(btn=>{
@@ -1047,6 +1051,7 @@ document.querySelectorAll('[data-switch-form]').forEach(btn=>{
     const alvo = document.getElementById(btn.dataset.switchForm);
     if(alvo.classList.contains('open')) return;
     const atual = document.querySelector('#formSheet .add-form.open');
+    if(atual && formHasData(atual) && !confirm('Você tem dados não salvos. Trocar mesmo assim?')) return;
     openFormForAdd(alvo);
   });
 });
@@ -1067,8 +1072,14 @@ document.getElementById('gastoFiltroLimpar').addEventListener('click', ()=>{ gas
 document.querySelectorAll('[data-cancel]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const form = document.getElementById(btn.dataset.cancel);
+    if(formHasData(form) && !confirm('Você tem dados não salvos. Deseja realmente cancelar?')) return;
     closeForm(form);
   });
+});
+
+window.addEventListener('beforeunload', (e)=>{
+  const anyDirty = [...document.querySelectorAll('.add-form.open')].some(f=>formHasData(f));
+  if(anyDirty){ e.preventDefault(); e.returnValue=''; }
 });
 
 /* ============ Mês corrente (Gastos Mensais) — com repetição automática ============ */
@@ -1681,7 +1692,7 @@ function processarParcelasAutomaticas(){
     d.ultimoMes = mesAtual;
     mudou = true;
   });
-  if(mudou) save();
+  if(mudou) save(false);
 }
 
 /* ============ Init ============ */
@@ -1741,8 +1752,11 @@ function wireCloudSync(){
       try{
         const cloudDoc = await window.CloudSync.buscarDaNuvem(user.uid);
         if(cloudDoc && cloudDoc.gestaoFinanceira){
-          const temDadosLocais = state.cartoes.length || state.outras.length || Object.keys(state.gastos).length;
-          if(!temDadosLocais || confirm('Encontramos dados salvos na nuvem para essa conta. Deseja carregar esses dados agora? (isso substitui os dados deste aparelho)')){
+          // Sem perguntar: usa a versão mais recente. A nuvem vence, a não ser que
+          // este aparelho tenha alterações mais novas que ainda não subiram.
+          const nuvemEm = Number(cloudDoc.gestaoFinanceira.atualizadoEm || 0);
+          const localEm = Number(state.atualizadoEm || 0);
+          if(nuvemEm >= localEm){
             state = cloudDoc.gestaoFinanceira;
             Object.values(state.gastos||{}).forEach(mes=>{ if(mes.locked===undefined) mes.locked = true; });
           } else {
