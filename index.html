@@ -424,15 +424,22 @@ body.privacy-on .leg-row b:hover{
 .hero-mini{padding:10px 8px;}
 
 /* Atalhos rápidos */
-.quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
-.qa{border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:7px;padding:0;color:var(--ink);font-family:var(--font-display);font-size:12.5px;font-weight:600;cursor:pointer;}
-.qa .ic{width:54px;height:54px;border-radius:18px;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:transform .12s ease;}
-.qa:active .ic{transform:scale(.9);}
-.qa .ic .material-symbols-outlined{font-size:26px;}
-.qa.renda .ic{background:rgba(39,138,84,.14);color:var(--green-ink);}
-.qa.gasto .ic{background:rgba(217,95,95,.14);color:var(--red-ink);}
-.qa.pagar .ic{background:rgba(240,180,41,.2);color:var(--yellow-ink);}
-.qa.divida .ic{background:rgba(77,143,214,.16);color:var(--blue-ink);}
+.bill-status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.bs{border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:12px 10px;text-align:left;cursor:pointer;
+  display:flex;flex-direction:column;gap:4px;min-width:0;color:var(--ink);font-family:var(--font-body);box-shadow:var(--shadow);transition:transform .12s ease;}
+.bs:active{transform:scale(.96);}
+.bs-top{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;}
+.bs-top .material-symbols-outlined{font-size:17px;}
+.bs-n{font-family:var(--font-display);font-size:26px;font-weight:800;line-height:1.1;}
+.bs .value{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--ink-soft);white-space:nowrap;letter-spacing:-.3px;}
+.bs.atrasado .bs-top{color:var(--red-ink);}
+.bs.pendente .bs-top{color:var(--yellow-ink);}
+.bs.pago .bs-top{color:var(--green-ink);}
+.bs.atrasado.tem{background:rgba(217,95,95,.1);border-color:rgba(217,95,95,.45);}
+.bs.atrasado.tem .bs-n{color:var(--red-ink);}
+.filtro-chip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface-2);border-radius:14px;padding:6px 6px 6px 12px;margin-top:2px;font-size:13px;font-weight:700;}
+.filtro-chip button{border:none;background:var(--surface);color:var(--ink);border-radius:999px;min-height:34px;padding:0 12px 0 8px;display:inline-flex;align-items:center;gap:4px;font-family:var(--font-body);font-size:12.5px;font-weight:600;cursor:pointer;}
+.filtro-chip button .material-symbols-outlined{font-size:16px;}
 
 /* Quinzenas lado a lado */
 .q-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
@@ -594,15 +601,15 @@ details.collapsible:not([open]):is(#detQuinzena,#detCategoria) summary .sum-badg
         </div>
       </div>
 
-      <div class="quick-actions">
-        <button type="button" class="qa renda" data-open-form="rendaForm"><span class="ic"><span class="material-symbols-outlined">arrow_upward</span></span>Renda</button>
-        <button type="button" class="qa gasto" data-open-form="gastoForm"><span class="ic"><span class="material-symbols-outlined">arrow_downward</span></span>Gasto</button>
-        <button type="button" class="qa pagar" id="qaPagar"><span class="ic"><span class="material-symbols-outlined">task_alt</span></span>Pagar conta</button>
-        <button type="button" class="qa divida" data-open-form="outraForm"><span class="ic"><span class="material-symbols-outlined">credit_card</span></span>Dívida</button>
+      <h2 class="section-title" style="margin-top:2px;"><span class="material-symbols-outlined">fact_check</span>Contas do mês</h2>
+      <div class="bill-status">
+        <button type="button" class="bs atrasado" data-filtro="atrasado"><span class="bs-top"><span class="material-symbols-outlined">error</span>Atrasadas</span><span class="bs-n" id="bsAtrasadoN">0</span><span class="value" id="bsAtrasadoV">R$ 0,00</span></button>
+        <button type="button" class="bs pendente" data-filtro="pendente"><span class="bs-top"><span class="material-symbols-outlined">schedule</span>Pendentes</span><span class="bs-n" id="bsPendenteN">0</span><span class="value" id="bsPendenteV">R$ 0,00</span></button>
+        <button type="button" class="bs pago" data-filtro="pago"><span class="bs-top"><span class="material-symbols-outlined">check_circle</span>Pagas</span><span class="bs-n" id="bsPagoN">0</span><span class="value" id="bsPagoV">R$ 0,00</span></button>
       </div>
 
       <h2 class="section-title"><span class="material-symbols-outlined">event_repeat</span>Fluxo por quinzena</h2>
-      <details class="card collapsible" id="detQuinzena">
+      <details class="card collapsible" id="detQuinzena" open>
         <summary><span class="material-symbols-outlined">event_repeat</span>Ver por quinzena<span class="count sum-badge" id="dashQuinzenaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body" id="dashQuinzenaCard"></div>
       </details>
@@ -663,6 +670,7 @@ details.collapsible:not([open]):is(#detQuinzena,#detCategoria) summary .sum-badg
       <details class="card collapsible" id="detGastos">
         <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="count sum-badge expense" id="gastoSum">R$ 0,00</span><button type="button" class="sum-add" data-open-form="gastoForm" aria-label="Adicionar gasto"><span class="material-symbols-outlined">add</span></button><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
+          <div class="filtro-chip" id="gastoFiltroChip" style="display:none;"><span id="gastoFiltroLabel">Mostrando: atrasadas</span><button type="button" id="gastoFiltroLimpar" aria-label="Mostrar todas"><span class="material-symbols-outlined">close</span>Mostrar todas</button></div>
           <div id="gastoList" style="margin-top:12px;"></div>
           <div id="gastoEmpty" class="empty">
             <span class="material-symbols-outlined">shopping_bag</span>
@@ -950,7 +958,18 @@ document.getElementById('themeToggle').addEventListener('click', ()=>{
 });
 
 /* ============ Navegação de abas ============ */
+let gastoFiltro = null; // filtro da lista de Gastos: null | 'atrasado' | 'pendente' | 'pago'
+// Situação de uma conta: paga, atrasada (vencimento já passou) ou pendente
+function situacaoConta(item){
+  if(item.status==='pago') return 'pago';
+  if(item.vencimento){
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    if(new Date(item.vencimento+'T00:00:00') < hoje) return 'atrasado';
+  }
+  return 'pendente';
+}
 function setTab(tab){
+  if(tab!=='gastos' && gastoFiltro){ gastoFiltro = null; renderGastos(); }
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+tab));
   document.querySelectorAll('.sidenav button[data-tab], .tabbar button[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   if(tab==='dashboard') renderDashboard();
@@ -1032,12 +1051,18 @@ document.querySelectorAll('[data-switch-form]').forEach(btn=>{
 });
 document.getElementById('closeSheet').addEventListener('click', tryCloseSheet);
 formSheet.addEventListener('click', e=>{ if(e.target===formSheet) tryCloseSheet(); });
-document.getElementById('qaPagar').addEventListener('click', ()=>{
-  setTab('gastos');
-  const det = document.getElementById('detGastos');
-  det.open = true;
-  det.scrollIntoView({behavior:'smooth', block:'start'});
+// Resumo "Contas do mês" no Dashboard: toca e abre Gastos filtrado
+document.querySelectorAll('.bs[data-filtro]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    gastoFiltro = btn.dataset.filtro;
+    setTab('gastos');
+    renderGastos();
+    const det = document.getElementById('detGastos');
+    det.open = true;
+    det.scrollIntoView({behavior:'smooth', block:'start'});
+  });
 });
+document.getElementById('gastoFiltroLimpar').addEventListener('click', ()=>{ gastoFiltro = null; renderGastos(); });
 document.querySelectorAll('[data-cancel]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const form = document.getElementById(btn.dataset.cancel);
@@ -1169,7 +1194,12 @@ function renderGastos(){
     if(!b.vencimento) return -1;
     return a.vencimento.localeCompare(b.vencimento);
   });
-  despesasOrdenadas.forEach(item=>{
+  const FILTRO_NOMES = { atrasado:['atrasada','atrasadas'], pendente:['pendente','pendentes'], pago:['paga','pagas'] };
+  const chip = document.getElementById('gastoFiltroChip');
+  const listaVisivel = gastoFiltro ? despesasOrdenadas.filter(i=>situacaoConta(i)===gastoFiltro) : despesasOrdenadas;
+  chip.style.display = gastoFiltro ? 'flex' : 'none';
+  if(gastoFiltro) document.getElementById('gastoFiltroLabel').textContent = `Mostrando: ${listaVisivel.length} ${FILTRO_NOMES[gastoFiltro][listaVisivel.length===1?0:1]}`;
+  listaVisivel.forEach(item=>{
     gl.appendChild(renderLedgerItem(item,'expense',
       ()=>{ if(!confirm(`Excluir a conta "${item.desc}"?`)) return; data.despesas = data.despesas.filter(x=>x.id!==item.id); lockMonth(key); save(); renderGastos(); renderDashboard(); },
       item.categoria, item.status,
@@ -1415,6 +1445,15 @@ function renderDashboard(){
   document.getElementById('dashBarPago').style.width = (totalGastos>0 ? (totalPago/totalGastos*100) : 0)+'%';
   document.getElementById('dashBarFalta').style.width = (totalGastos>0 ? (totalFalta/totalGastos*100) : 0)+'%';
   document.getElementById('donutPct').textContent = pctPago+'%';
+
+  // Contas do mês: atrasadas / pendentes / pagas (quantidade e valor)
+  const resumo = { atrasado:{n:0,v:0}, pendente:{n:0,v:0}, pago:{n:0,v:0} };
+  data.despesas.forEach(d=>{ const r = resumo[situacaoConta(d)]; r.n++; r.v += Number(d.valor||0); });
+  [['atrasado','Atrasado'],['pendente','Pendente'],['pago','Pago']].forEach(([k,id])=>{
+    document.getElementById('bs'+id+'N').textContent = resumo[k].n;
+    document.getElementById('bs'+id+'V').textContent = brl(resumo[k].v);
+  });
+  document.querySelector('.bs.atrasado').classList.toggle('tem', resumo.atrasado.n>0);
   // Hero fica azul quando todas as contas do mês estão pagas (igual ao cabeçalho)
   document.getElementById('dashHero').classList.toggle('all-paid', data.despesas.length>0 && totalFalta===0);
 
