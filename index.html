@@ -42,8 +42,21 @@
     --font-display:'Outfit',sans-serif;
     --font-body:'Inter',sans-serif;
     --font-mono:'JetBrains Mono',monospace;
+    --hero:#123524;
+    --hero-soft:#a9c4b4;
+    --btn-primary:#1f7a48;
+    --green-ink:#1f7a48;
+    --red-ink:#a33434;
+    --yellow-ink:#8a5d00;
+    --blue-ink:#1d5c8c;
   }
   [data-theme="dark"]{
+    --hero:#173f2b;
+    --btn-primary:#278a54;
+    --green-ink:#4cc47e;
+    --red-ink:#ef8a8a;
+    --yellow-ink:#f7c948;
+    --blue-ink:#7fb2e8;
     --bg:#0b1712;
     --surface:#12211a;
     --surface-2:#182a21;
@@ -58,7 +71,7 @@
     background:var(--bg);color:var(--ink);
     font-family:var(--font-body);
     min-height:100vh;
-    padding-bottom:78px;
+    padding-bottom:104px;
     transition:background .2s,color .2s;
   }
   .material-symbols-outlined{font-variation-settings:'opsz' 24,'wght' 400,'FILL' 0,'GRAD' 0;font-size:22px;line-height:1;vertical-align:middle;}
@@ -68,7 +81,7 @@
   :root{ --blue-900:#123a5c; --blue-700:#1d5c8c; }
   .topbar{
     position:sticky;top:0;z-index:40;
-    background:var(--green-900);color:#eef3ee;
+    background:var(--hero);color:#eef3ee;
     padding:16px 18px calc(16px + env(safe-area-inset-top,0px));
     padding-top:calc(16px + env(safe-area-inset-top,0px));
     display:flex;align-items:center;justify-content:space-between;
@@ -198,12 +211,13 @@
   .chip.atrasado{background:rgba(217,95,95,.15);color:var(--red-600);}
   [data-theme="dark"] .chip.pendente{color:var(--yellow-400);}
   .icon-sm-btn{
-    width:26px;height:26px;border:none;background:transparent;color:var(--ink-soft);
-    border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+    width:36px;height:36px;border:none;background:var(--surface-2);color:var(--ink);
+    border-radius:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+    transition:transform .12s ease;
   }
-  .icon-sm-btn .material-symbols-outlined{font-size:17px;}
-  .icon-sm-btn:active{background:var(--surface-2);}
-  .icon-sm-btn.danger:active{color:var(--red-500);}
+  .icon-sm-btn .material-symbols-outlined{font-size:18px;}
+  .icon-sm-btn:active{transform:scale(.92);}
+  .icon-sm-btn.danger{background:rgba(217,95,95,.12);color:var(--red-ink);}
 
   .empty{text-align:center;padding:26px 12px;color:var(--ink-soft);}
   .empty .material-symbols-outlined{font-size:30px;opacity:.5;display:block;margin:0 auto 8px;}
@@ -224,16 +238,19 @@
   .form-actions{display:flex;gap:8px;margin-top:2px;}
 
   .btn{
-    font-family:var(--font-body);font-weight:600;font-size:14px;
-    padding:10px 16px;border-radius:9px;border:none;cursor:pointer;
-    display:inline-flex;align-items:center;gap:6px;justify-content:center;
+    font-family:var(--font-body);font-weight:700;font-size:14.5px;
+    min-height:46px;padding:0 20px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;justify-content:center;
+    transition:transform .12s ease,background .15s ease,box-shadow .15s ease;
   }
-  .btn-primary{background:var(--green-600);color:#fff;}
+  .btn:active{transform:scale(.96);}
+  .btn .material-symbols-outlined{font-size:19px;}
+  .btn-primary{background:var(--btn-primary);color:#fff;box-shadow:0 6px 16px -8px rgba(31,122,72,.6);}
   .btn-primary:active{background:var(--green-700);}
-  .btn-ghost{background:var(--surface-2);color:var(--ink);}
-  .btn-ghost:active{background:var(--line);}
-  .btn-danger{background:var(--red-500);color:#fff;}
-  .btn-danger:active{background:var(--red-600);}
+  .btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line);}
+  .btn-ghost:active{background:var(--surface-2);}
+  .btn-danger{background:rgba(217,95,95,.13);color:var(--red-ink);}
+  .btn-danger:active{background:rgba(217,95,95,.22);}
   .btn-block{width:100%;}
   .add-toggle{
     width:100%;display:flex;align-items:center;justify-content:center;gap:6px;
@@ -249,8 +266,8 @@
     background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
     padding:10px 8px;box-shadow:var(--shadow);margin-bottom:14px;
   }
-  .month-switch button{background:transparent;border:none;color:var(--ink);width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-  .month-switch button:active{background:var(--surface-2);}
+  .month-switch button{background:var(--surface-2);border:none;color:var(--ink);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s ease;}
+  .month-switch button:active{transform:scale(.92);}
   .month-switch .label{font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:capitalize;}
 
   /* progress */
@@ -270,12 +287,13 @@
   .debt-numbers b{display:block;font-family:var(--font-mono);color:var(--ink);font-size:12.5px;font-weight:600;margin-top:2px;white-space:normal;overflow-wrap:break-word;line-height:1.28;}
 
   /* segmented control for sub-tabs */
-  .segmented{display:flex;background:var(--surface-2);border-radius:11px;padding:3px;gap:3px;margin-bottom:14px;}
+  .segmented{display:flex;background:var(--surface-2);border-radius:999px;padding:4px;gap:4px;margin-bottom:14px;}
   .segmented button{
-    flex:1;border:none;background:transparent;padding:9px 6px;border-radius:8px;
-    font-weight:600;font-size:13px;color:var(--ink-soft);cursor:pointer;
+    flex:1;border:none;background:transparent;min-height:40px;padding:0 8px;border-radius:999px;
+    font-family:var(--font-body);font-weight:600;font-size:14px;color:var(--ink-soft);cursor:pointer;
+    transition:background .15s ease,color .15s ease;
   }
-  .segmented button.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);}
+  .segmented button.active{background:var(--hero);color:#fff;font-weight:700;}
   .sub-panel{display:none;}
   .sub-panel.active{display:block;}
 
@@ -298,17 +316,27 @@
 
   /* bottom tabbar (mobile) */
   .tabbar{
-    position:fixed;left:0;right:0;bottom:0;z-index:40;
-    background:var(--surface);border-top:1px solid var(--line);
-    display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
-    box-shadow:0 -4px 18px -10px rgba(0,0,0,.2);
+    position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:40;
+    background:var(--surface);border:1px solid var(--line);border-radius:24px;
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;padding:6px;
+    box-shadow:0 10px 30px -12px rgba(0,0,0,.35);
   }
-  .tabbar button{
-    flex:1;background:transparent;border:none;display:flex;flex-direction:column;
-    align-items:center;gap:2px;padding:7px 2px;border-radius:10px;color:var(--ink-soft);cursor:pointer;
+  .tabbar .tab-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .tabbar button[data-tab]{
+    background:transparent;border:none;display:flex;flex-direction:column;
+    align-items:center;gap:2px;padding:7px 2px;border-radius:14px;color:var(--ink-soft);cursor:pointer;
   }
-  .tabbar button.active{color:var(--green-600);}
-  .tabbar button span.lbl{font-size:10.5px;font-weight:600;}
+  .tabbar button[data-tab].active{color:var(--green-ink);}
+  .tabbar button[data-tab].active .material-symbols-outlined{font-variation-settings:'opsz' 24,'wght' 500,'FILL' 1,'GRAD' 0;}
+  .tabbar button span.lbl{font-size:11px;font-weight:600;}
+  .tabbar .fab-slot{display:flex;justify-content:center;}
+  .fab{
+    width:58px;height:58px;margin-top:-30px;border-radius:20px;border:4px solid var(--bg);
+    background:var(--btn-primary);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 8px 20px -6px rgba(31,122,72,.65);transition:transform .12s ease;
+  }
+  .fab:active{transform:scale(.92);}
+  .fab .material-symbols-outlined{font-size:30px;}
 
   /* ---------- Modals ---------- */
   .modal-overlay{
@@ -375,6 +403,144 @@ body.privacy-on .bar-row-top b:hover,
 body.privacy-on .leg-row b:hover{
   filter: blur(0);
 }
+
+/* ================= Redesign (out/2026) ================= */
+.topbar:not(.shrink){box-shadow:none;}
+
+/* Hero do dashboard */
+.dash-hero{
+  background:var(--hero);color:#eef3ee;
+  margin:-18px -16px 20px;padding:14px 18px 22px;border-radius:0 0 28px 28px;
+  display:flex;flex-direction:column;gap:16px;transition:background .3s ease;
+}
+.dash-hero.all-paid{background:var(--blue-900);}
+.hero-month{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.08);border-radius:999px;padding:4px;}
+.hero-month button{width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s ease;}
+.hero-month button:active{transform:scale(.92);}
+.hero-month .label{font-family:var(--font-display);font-weight:600;font-size:15px;text-transform:capitalize;}
+.hero-saldo small{display:block;font-size:13px;color:var(--hero-soft);font-weight:500;margin-bottom:2px;}
+.hero-saldo .value{font-family:var(--font-mono);font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1.15;overflow-wrap:anywhere;}
+.hero-progress-top{display:flex;justify-content:space-between;font-size:12.5px;color:#cfe0d6;margin-bottom:8px;}
+.hero-progress-top b{color:#fff;font-family:var(--font-mono);}
+.hero-bar{height:10px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden;display:flex;}
+.hero-bar .p{background:#4cc47e;transition:width .4s ease;}
+.hero-bar .f{background:#f7c948;transition:width .4s ease;}
+.hero-minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.hero-mini{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;min-width:0;}
+.hero-mini label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--hero-soft);font-weight:600;}
+.hero-mini label i{width:7px;height:7px;border-radius:50%;flex:none;}
+.hero-mini .value{font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:-.4px;margin-top:3px;white-space:nowrap;line-height:1.25;}
+.hero-mini{padding:10px 8px;}
+
+/* Atalhos rápidos */
+.quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.qa{border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:7px;padding:0;color:var(--ink);font-family:var(--font-display);font-size:12.5px;font-weight:600;cursor:pointer;}
+.qa .ic{width:54px;height:54px;border-radius:18px;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:transform .12s ease;}
+.qa:active .ic{transform:scale(.9);}
+.qa .ic .material-symbols-outlined{font-size:26px;}
+.qa.renda .ic{background:rgba(39,138,84,.14);color:var(--green-ink);}
+.qa.gasto .ic{background:rgba(217,95,95,.14);color:var(--red-ink);}
+.qa.pagar .ic{background:rgba(240,180,41,.2);color:var(--yellow-ink);}
+.qa.divida .ic{background:rgba(77,143,214,.16);color:var(--blue-ink);}
+
+/* Quinzenas lado a lado */
+.q-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.q-tile{background:var(--surface-2);border-radius:18px;padding:13px;display:flex;flex-direction:column;gap:9px;min-width:0;}
+.q-head{display:flex;align-items:center;justify-content:space-between;gap:6px;font-family:var(--font-display);font-weight:700;font-size:14px;}
+.q-badge{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;}
+.q-badge .material-symbols-outlined{font-size:16px;}
+.q-badge.ok{background:rgba(39,138,84,.16);color:var(--green-ink);}
+.q-badge.bad{background:rgba(217,95,95,.16);color:var(--red-ink);}
+.q-status{font-size:11.5px;font-weight:600;margin-top:-4px;}
+.q-status.ok{color:var(--green-ink);}
+.q-status.bad{color:var(--red-ink);}
+.q-row{display:flex;flex-direction:column;gap:1px;font-size:11.5px;color:var(--ink-soft);}
+.q-row .value{font-family:var(--font-mono);font-weight:600;font-size:13px;color:var(--ink);overflow-wrap:anywhere;}
+.q-result{border-top:1px dashed var(--line);padding-top:9px;display:flex;flex-direction:column;gap:1px;}
+.q-result span{font-size:11.5px;font-weight:600;}
+.q-result .value{font-family:var(--font-mono);font-weight:700;font-size:15px;overflow-wrap:anywhere;}
+.q-result.ok{color:var(--green-ink);}
+.q-result.bad{color:var(--red-ink);}
+
+/* Categorias */
+.cat-row{display:flex;align-items:center;gap:12px;}
+.cat-row + .cat-row{margin-top:14px;}
+.cat-ic{width:40px;height:40px;border-radius:13px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink);}
+.cat-ic .material-symbols-outlined{font-size:20px;}
+.cat-main{flex:1;min-width:0;}
+.cat-top{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:6px;}
+.cat-top span{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cat-top b{font-family:var(--font-mono);font-weight:600;flex:none;}
+.cat-bot{display:flex;align-items:center;gap:8px;}
+.cat-bot .bar-track{flex:1;height:6px;}
+.cat-bot .bar-fill{background:var(--green-500);}
+.cat-bot small{font-size:11.5px;color:var(--ink-soft);width:36px;text-align:right;flex:none;}
+
+/* Cartões em "cartõezinhos" */
+.cc-scroll{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.cc-card{flex:none;width:176px;min-height:106px;border-radius:18px;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;gap:10px;color:#f4f6f8;scroll-snap-align:start;}
+.cc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:600;}
+.cc-top span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cc-chip{width:26px;height:18px;border-radius:4px;background:#c9a54a;flex:none;}
+.cc-card small{display:block;font-size:10.5px;opacity:.75;}
+.cc-card .value{font-family:var(--font-mono);font-weight:700;font-size:16px;overflow-wrap:anywhere;}
+.debt-total{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+
+/* Dívidas com anel de progresso */
+.ring-row{display:flex;align-items:center;gap:14px;}
+.ring{width:58px;height:58px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;}
+.ring > span{width:46px;height:46px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--font-display);}
+.ring-row h3{margin:0 0 2px;font-size:15px;font-family:var(--font-display);}
+.ring-row .tag{font-size:12px;color:var(--ink-soft);}
+
+/* "+" compacto no cabeçalho das listas */
+.sum-add{
+  width:34px;height:34px;border-radius:50%;border:none;flex:none;cursor:pointer;
+  background:var(--btn-primary);color:#fff;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s ease;
+}
+.sum-add:active{transform:scale(.9);}
+.sum-add .material-symbols-outlined{font-size:20px;}
+details.collapsible summary .sum-badge{margin-left:auto;}
+details.collapsible summary .sum-badge ~ .chev{margin-left:0;}
+
+/* Botão de status pago/pendente */
+.status-btn{
+  font-family:var(--font-body);height:34px;padding:0 12px 0 5px;border-radius:999px;
+  display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer;
+  border:1.5px solid transparent;transition:transform .12s ease;flex:none;
+}
+.status-btn:active{transform:scale(.94);}
+.status-btn .st-ic{width:22px;height:22px;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;}
+.status-btn .st-ic .material-symbols-outlined{font-size:15px;font-variation-settings:'opsz' 20,'wght' 700,'FILL' 0,'GRAD' 0;}
+.status-btn.pendente{background:#fff8e6;border-color:#e6c46a;color:#7a5200;}
+.status-btn.pendente .st-ic{border:2px solid #d9a521;}
+.status-btn.atrasado{background:rgba(217,95,95,.1);border-color:rgba(217,95,95,.45);color:var(--red-ink);}
+.status-btn.atrasado .st-ic{border:2px solid var(--red-500);}
+.status-btn.pago{background:var(--btn-primary);color:#fff;}
+.status-btn.pago .st-ic{background:#fff;color:var(--btn-primary);}
+[data-theme="dark"] .status-btn.pendente{background:rgba(247,201,72,.1);border-color:rgba(247,201,72,.4);color:#f7c948;}
+.ledger-bottom{gap:8px;}
+.debt-head .actions{gap:6px;}
+
+/* Painel deslizante de lançamento */
+.sheet{animation:sheetUp .22s ease;}
+@keyframes sheetUp{from{transform:translateY(30px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.sheet-grab{width:40px;height:5px;border-radius:99px;background:var(--line);margin:-8px auto 12px;}
+.sheet .add-form{padding-top:0;margin-top:0;border-top:none;}
+.sheet .add-form.open{gap:12px;}
+.sheet-close{background:var(--surface-2) !important;color:var(--ink) !important;}
+.type-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;background:var(--surface-2);border-radius:999px;padding:4px;margin-bottom:14px;}
+.type-switch button{border:none;background:transparent;min-height:40px;border-radius:999px;font-family:var(--font-body);font-weight:600;font-size:14px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;}
+.type-switch button .material-symbols-outlined{font-size:18px;}
+.type-switch button.active.renda{background:var(--btn-primary);color:#fff;font-weight:700;}
+.type-switch button.active.gasto{background:var(--red-500);color:#fff;font-weight:700;}
+.field.money input{font-family:var(--font-mono);font-size:26px;font-weight:700;padding:12px 14px;}
+.field input,.field select{min-height:46px;border-radius:12px;font-size:16px;}
+
+@media (min-width:860px){
+  .dash-hero{margin:-26px -30px 22px;border-radius:0 0 28px 28px;}
+}
 </style>
 </head>
 <body data-theme="light">
@@ -410,23 +576,32 @@ body.privacy-on .leg-row b:hover{
   <main>
     <!-- ================= DASHBOARD ================= -->
     <section class="tab-panel active" id="tab-dashboard">
-      <h2 class="section-title"><span class="material-symbols-outlined">calendar_month</span>Resumo de <span id="dashMonthLabel"></span></h2>
-      <div class="stat-grid">
-        <div class="stat pos"><div class="bar"></div><label>Renda do mês</label><div class="value" id="statRenda">R$ 0,00</div></div>
-        <div class="stat neg"><div class="bar"></div><label>Já pago</label><div class="value" id="statPago">R$ 0,00</div></div>
-        <div class="stat warn"><div class="bar"></div><label>Falta pagar</label><div class="value" id="statFalta">R$ 0,00</div></div>
-        <div class="stat info"><div class="bar"></div><label>Saldo disponível</label><div class="value" id="statSaldo">R$ 0,00</div></div>
+      <div class="dash-hero" id="dashHero">
+        <div class="hero-month">
+          <button type="button" id="dashPrevMonth" aria-label="Mês anterior"><span class="material-symbols-outlined">chevron_left</span></button>
+          <span class="label" id="dashMonthLabel">—</span>
+          <button type="button" id="dashNextMonth" aria-label="Próximo mês"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+        <div class="hero-saldo">
+          <small>Saldo disponível</small>
+          <div class="value" id="statSaldo">R$ 0,00</div>
+        </div>
+        <div>
+          <div class="hero-progress-top"><span>Contas do mês já pagas</span><b id="donutPct">0%</b></div>
+          <div class="hero-bar"><div class="p" id="dashBarPago" style="width:0%"></div><div class="f" id="dashBarFalta" style="width:0%"></div></div>
+        </div>
+        <div class="hero-minis">
+          <div class="hero-mini"><label>Renda do mês</label><div class="value" id="statRenda">R$ 0,00</div></div>
+          <div class="hero-mini"><label><i style="background:#4cc47e;"></i>Já pago</label><div class="value" id="statPago">R$ 0,00</div></div>
+          <div class="hero-mini"><label><i style="background:#f7c948;"></i>Falta pagar</label><div class="value" id="statFalta">R$ 0,00</div></div>
+        </div>
       </div>
 
-      <h2 class="section-title"><span class="material-symbols-outlined">donut_large</span>Contas do mês</h2>
-      <div class="card">
-        <div class="donut-wrap">
-          <div class="donut" id="donutChart"><div class="donut-hole"><span id="donutPct">0%</span><small>já pago</small></div></div>
-          <div class="donut-legend">
-            <div class="leg-row"><span class="dot" style="background:var(--green-500);"></span>Pago<b id="legPago">R$ 0,00</b></div>
-            <div class="leg-row"><span class="dot" style="background:var(--yellow-500);"></span>Falta pagar<b id="legFalta">R$ 0,00</b></div>
-          </div>
-        </div>
+      <div class="quick-actions">
+        <button type="button" class="qa renda" data-open-form="rendaForm"><span class="ic"><span class="material-symbols-outlined">arrow_upward</span></span>Renda</button>
+        <button type="button" class="qa gasto" data-open-form="gastoForm"><span class="ic"><span class="material-symbols-outlined">arrow_downward</span></span>Gasto</button>
+        <button type="button" class="qa pagar" id="qaPagar"><span class="ic"><span class="material-symbols-outlined">task_alt</span></span>Pagar conta</button>
+        <button type="button" class="qa divida" data-open-form="outraForm"><span class="ic"><span class="material-symbols-outlined">credit_card</span></span>Dívida</button>
       </div>
 
       <h2 class="section-title"><span class="material-symbols-outlined">event_repeat</span>Fluxo por quinzena</h2>
@@ -442,7 +617,7 @@ body.privacy-on .leg-row b:hover{
       </details>
 
       <h2 class="section-title"><span class="material-symbols-outlined">credit_card</span>Cartões de crédito</h2>
-      <div class="card" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+      <div class="card debt-total">
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="material-symbols-outlined" style="color:var(--red-500);">account_balance_wallet</span>
           <div>
@@ -452,7 +627,7 @@ body.privacy-on .leg-row b:hover{
         </div>
         <div class="value" id="statDividas" style="font-family:var(--font-mono);font-weight:700;font-size:17px;">R$ 0,00</div>
       </div>
-      <div class="card" id="dashCartoesCard"></div>
+      <div id="dashCartoesCard"></div>
 
       <h2 class="section-title"><span class="material-symbols-outlined">receipt</span>Outras dívidas</h2>
       <div id="dashOutrasCard"></div>
@@ -478,20 +653,8 @@ body.privacy-on .leg-row b:hover{
       </div>
 
       <details class="card collapsible" id="detRenda">
-        <summary><span class="material-symbols-outlined">trending_up</span>Renda<span class="count" id="rendaCount">0</span><span class="count sum-badge income" id="rendaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">trending_up</span>Renda<span class="count" id="rendaCount">0</span><span class="count sum-badge income" id="rendaSum">R$ 0,00</span><button type="button" class="sum-add" data-open-form="rendaForm" aria-label="Adicionar renda"><span class="material-symbols-outlined">add</span></button><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
-          <button class="add-toggle" data-form="rendaForm"><span class="material-symbols-outlined">add</span>Adicionar renda</button>
-          <form class="add-form" id="rendaForm">
-            <div class="field"><label>Descrição</label><input type="text" id="rendaDesc" placeholder="Ex: Salário, Vale" required></div>
-            <div class="row-2">
-              <div class="field"><label>Valor (R$)</label><input type="number" id="rendaValor" step="0.01" min="0" placeholder="0,00" required></div>
-              <div class="field"><label>Data</label><input type="date" id="rendaData" required></div>
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary btn-block">Salvar</button>
-              <button type="button" class="btn btn-ghost" data-cancel="rendaForm">Cancelar</button>
-            </div>
-          </form>
           <div id="rendaList" style="margin-top:12px;"></div>
           <div id="rendaEmpty" class="empty">
             <span class="material-symbols-outlined">payments</span>
@@ -501,34 +664,8 @@ body.privacy-on .leg-row b:hover{
       </details>
 
       <details class="card collapsible" id="detGastos">
-        <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="count sum-badge expense" id="gastoSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">trending_down</span>Gastos<span class="count" id="gastoCount">0</span><span class="count sum-badge expense" id="gastoSum">R$ 0,00</span><button type="button" class="sum-add" data-open-form="gastoForm" aria-label="Adicionar gasto"><span class="material-symbols-outlined">add</span></button><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body">
-          <button class="add-toggle" data-form="gastoForm"><span class="material-symbols-outlined">add</span>Adicionar gasto</button>
-          <form class="add-form" id="gastoForm">
-            <div class="field"><label>Descrição</label><input type="text" id="gastoDesc" placeholder="Ex: Escola, Água, Mercado" required></div>
-            <div class="row-2">
-              <div class="field"><label>Valor (R$)</label><input type="number" id="gastoValor" step="0.01" min="0" placeholder="0,00" required></div>
-              <div class="field"><label>Categoria</label>
-                <select id="gastoCategoria">
-                  <option>Moradia</option><option>Contas fixas</option><option>Telefonia e Internet</option>
-                  <option>Alimentação</option><option>Transporte</option><option>Educação</option><option>Saúde</option>
-                  <option>Cartão de crédito</option><option>Impostos e taxas</option><option>Jurídico</option>
-                  <option>Consórcio</option><option>Empréstimos e financiamentos</option><option>Terrenos e imóveis</option>
-                  <option>Lazer</option><option>Outros</option>
-                </select>
-              </div>
-            </div>
-            <div class="row-2">
-              <div class="field"><label>Vencimento (opcional)</label><input type="date" id="gastoVencimento"></div>
-              <div class="field"><label>Status</label>
-                <select id="gastoStatus"><option value="pendente">Pendente</option><option value="pago">Pago</option></select>
-              </div>
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary btn-block">Salvar</button>
-              <button type="button" class="btn btn-ghost" data-cancel="gastoForm">Cancelar</button>
-            </div>
-          </form>
           <div id="gastoList" style="margin-top:12px;"></div>
           <div id="gastoEmpty" class="empty">
             <span class="material-symbols-outlined">shopping_bag</span>
@@ -548,22 +685,13 @@ body.privacy-on .leg-row b:hover{
       <!-- Cartões -->
       <div class="sub-panel active" id="sub-cartoes">
         <details class="card collapsible" open id="detCartoes">
-          <summary><span class="material-symbols-outlined">credit_card</span>Cartões cadastrados<span class="count" id="cartoesCount">0</span><span class="count sum-badge debt" id="cartoesSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+          <summary><span class="material-symbols-outlined">credit_card</span>Cartões cadastrados<span class="count" id="cartoesCount">0</span><span class="count sum-badge debt" id="cartoesSum">R$ 0,00</span><button type="button" class="sum-add" data-open-form="cartaoForm" aria-label="Adicionar cartão"><span class="material-symbols-outlined">add</span></button><span class="material-symbols-outlined chev">expand_more</span></summary>
           <div class="details-body">
             <div id="cartoesList"></div>
             <div id="cartoesEmpty" class="empty">
               <span class="material-symbols-outlined">credit_card_off</span>
               <p>Nenhum cartão cadastrado.</p>
             </div>
-            <button class="add-toggle" data-form="cartaoForm"><span class="material-symbols-outlined">add</span>Adicionar cartão</button>
-            <form class="add-form" id="cartaoForm">
-              <div class="field"><label>Nome do cartão</label><input type="text" id="cartaoNome" placeholder="Ex: Nubank, Bradesco" required></div>
-              <div class="field"><label>Saldo atual da fatura (R$)</label><input type="number" id="cartaoSaldo" step="0.01" min="0" placeholder="0,00" required></div>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-block">Salvar</button>
-                <button type="button" class="btn btn-ghost" data-cancel="cartaoForm">Cancelar</button>
-              </div>
-            </form>
           </div>
         </details>
       </div>
@@ -571,29 +699,13 @@ body.privacy-on .leg-row b:hover{
       <!-- Outras dívidas -->
       <div class="sub-panel" id="sub-outras">
         <details class="card collapsible" open id="detOutras">
-          <summary><span class="material-symbols-outlined">receipt</span>Dívidas cadastradas<span class="count" id="outrasCount">0</span><span class="count sum-badge debt" id="outrasSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+          <summary><span class="material-symbols-outlined">receipt</span>Dívidas cadastradas<span class="count" id="outrasCount">0</span><span class="count sum-badge debt" id="outrasSum">R$ 0,00</span><button type="button" class="sum-add" data-open-form="outraForm" aria-label="Adicionar dívida"><span class="material-symbols-outlined">add</span></button><span class="material-symbols-outlined chev">expand_more</span></summary>
           <div class="details-body">
             <div id="outrasList"></div>
             <div id="outrasEmpty" class="empty">
               <span class="material-symbols-outlined">receipt</span>
               <p>Nenhuma dívida cadastrada.</p>
             </div>
-            <button class="add-toggle" data-form="outraForm"><span class="material-symbols-outlined">add</span>Adicionar dívida</button>
-            <form class="add-form" id="outraForm">
-              <div class="field"><label>Nome</label><input type="text" id="outraNome" placeholder="Ex: Empréstimo, Consórcio" required></div>
-              <div class="row-2">
-                <div class="field"><label>Valor total (R$)</label><input type="number" id="outraTotal" step="0.01" min="0" required></div>
-                <div class="field"><label>Valor já pago (R$)</label><input type="number" id="outraPago" step="0.01" min="0" value="0" required></div>
-              </div>
-              <div class="row-2">
-                <div class="field"><label>Valor da parcela (R$)</label><input type="number" id="outraParcela" step="0.01" min="0"></div>
-                <div class="field"><label>Prazo (meses)</label><input type="number" id="outraPrazo" min="0"></div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-block">Salvar</button>
-                <button type="button" class="btn btn-ghost" data-cancel="outraForm">Cancelar</button>
-              </div>
-            </form>
           </div>
         </details>
       </div>
@@ -603,9 +715,89 @@ body.privacy-on .leg-row b:hover{
 
 <nav class="tabbar">
   <button data-tab="dashboard" class="active"><span class="material-symbols-outlined">dashboard</span><span class="lbl">Dashboard</span></button>
-  <button data-tab="gastos"><span class="material-symbols-outlined">receipt_long</span><span class="lbl">Gastos</span></button>
-  <button data-tab="dividas"><span class="material-symbols-outlined">credit_card</span><span class="lbl">Dívidas</span></button>
+  <div class="fab-slot">
+    <button type="button" class="fab" id="fabAdd" aria-label="Novo lançamento"><span class="material-symbols-outlined">add</span></button>
+  </div>
+  <div class="tab-pair">
+    <button data-tab="gastos"><span class="material-symbols-outlined">receipt_long</span><span class="lbl">Gastos</span></button>
+    <button data-tab="dividas"><span class="material-symbols-outlined">credit_card</span><span class="lbl">Dívidas</span></button>
+  </div>
 </nav>
+
+<!-- ================= PAINEL: NOVO LANÇAMENTO ================= -->
+<div class="modal-overlay" id="formSheet">
+  <div class="modal sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-grab"></div>
+    <div class="modal-head">
+      <h3 id="sheetTitle">Novo lançamento</h3>
+      <button type="button" class="icon-btn sheet-close" id="closeSheet" aria-label="Fechar"><span class="material-symbols-outlined">close</span></button>
+    </div>
+
+    <div class="type-switch" id="typeSwitch">
+      <button type="button" class="renda" data-switch-form="rendaForm"><span class="material-symbols-outlined">arrow_upward</span>Renda</button>
+      <button type="button" class="gasto" data-switch-form="gastoForm"><span class="material-symbols-outlined">arrow_downward</span>Gasto</button>
+    </div>
+
+    <form class="add-form" id="rendaForm">
+      <div class="field money"><label>Valor (R$)</label><input type="number" id="rendaValor" step="0.01" min="0" inputmode="decimal" placeholder="0,00" required></div>
+      <div class="field"><label>Descrição</label><input type="text" id="rendaDesc" placeholder="Ex: Salário, Vale" required></div>
+      <div class="field"><label>Data</label><input type="date" id="rendaData" required></div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        <button type="button" class="btn btn-ghost" data-cancel="rendaForm">Cancelar</button>
+      </div>
+    </form>
+
+    <form class="add-form" id="gastoForm">
+      <div class="field money"><label>Valor (R$)</label><input type="number" id="gastoValor" step="0.01" min="0" inputmode="decimal" placeholder="0,00" required></div>
+      <div class="field"><label>Descrição</label><input type="text" id="gastoDesc" placeholder="Ex: Escola, Água, Mercado" required></div>
+      <div class="row-2">
+        <div class="field"><label>Categoria</label>
+          <select id="gastoCategoria">
+            <option>Moradia</option><option>Contas fixas</option><option>Telefonia e Internet</option>
+            <option>Alimentação</option><option>Transporte</option><option>Educação</option><option>Saúde</option>
+            <option>Cartão de crédito</option><option>Impostos e taxas</option><option>Jurídico</option>
+            <option>Consórcio</option><option>Empréstimos e financiamentos</option><option>Terrenos e imóveis</option>
+            <option>Lazer</option><option>Outros</option>
+          </select>
+        </div>
+        <div class="field"><label>Status</label>
+          <select id="gastoStatus"><option value="pendente">Pendente</option><option value="pago">Pago</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Vencimento (opcional)</label><input type="date" id="gastoVencimento"></div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        <button type="button" class="btn btn-ghost" data-cancel="gastoForm">Cancelar</button>
+      </div>
+    </form>
+
+    <form class="add-form" id="cartaoForm">
+      <div class="field"><label>Nome do cartão</label><input type="text" id="cartaoNome" placeholder="Ex: Nubank, Bradesco" required></div>
+      <div class="field money"><label>Saldo atual da fatura (R$)</label><input type="number" id="cartaoSaldo" step="0.01" min="0" inputmode="decimal" placeholder="0,00" required></div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        <button type="button" class="btn btn-ghost" data-cancel="cartaoForm">Cancelar</button>
+      </div>
+    </form>
+
+    <form class="add-form" id="outraForm">
+      <div class="field"><label>Nome</label><input type="text" id="outraNome" placeholder="Ex: Empréstimo, Consórcio" required></div>
+      <div class="row-2">
+        <div class="field"><label>Valor total (R$)</label><input type="number" id="outraTotal" step="0.01" min="0" inputmode="decimal" required></div>
+        <div class="field"><label>Valor já pago (R$)</label><input type="number" id="outraPago" step="0.01" min="0" inputmode="decimal" value="0" required></div>
+      </div>
+      <div class="row-2">
+        <div class="field"><label>Valor da parcela (R$)</label><input type="number" id="outraParcela" step="0.01" min="0" inputmode="decimal"></div>
+        <div class="field"><label>Prazo (meses)</label><input type="number" id="outraPrazo" min="0" inputmode="numeric"></div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        <button type="button" class="btn btn-ghost" data-cancel="outraForm">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- ================= MODAL: FERRAMENTAS ================= -->
 <div class="modal-overlay" id="toolsModal">
@@ -768,10 +960,10 @@ document.getElementById('themeToggle').addEventListener('click', ()=>{
 /* ============ Navegação de abas ============ */
 function setTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+tab));
-  document.querySelectorAll('.sidenav button, .tabbar button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.sidenav button[data-tab], .tabbar button[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   if(tab==='dashboard') renderDashboard();
 }
-document.querySelectorAll('.sidenav button, .tabbar button').forEach(b=>{
+document.querySelectorAll('.sidenav button[data-tab], .tabbar button[data-tab]').forEach(b=>{
   b.addEventListener('click', ()=>setTab(b.dataset.tab));
 });
 document.querySelectorAll('.segmented button').forEach(b=>{
@@ -789,39 +981,71 @@ function formHasData(form){
     return inp.value && inp.value.trim() !== '';
   });
 }
+// Os formulários ficam num painel que sobe de baixo (#formSheet). Só um
+// formulário fica visível por vez; os IDs e o salvamento são os mesmos de antes.
+const formSheet = document.getElementById('formSheet');
+const FORM_NOMES = { rendaForm:'renda', gastoForm:'gasto', cartaoForm:'cartão', outraForm:'dívida' };
+function showSheetFor(form, editando){
+  document.querySelectorAll('#formSheet .add-form').forEach(f=>{ if(f!==form) closeForm(f, true); });
+  const nome = FORM_NOMES[form.id] || 'lançamento';
+  const novaPalavra = (nome==='renda'||nome==='dívida') ? 'Nova' : 'Novo';
+  document.getElementById('sheetTitle').textContent = editando ? `Editar ${nome}` : `${novaPalavra} ${nome}`;
+  const ts = document.getElementById('typeSwitch');
+  ts.style.display = (!editando && (form.id==='rendaForm' || form.id==='gastoForm')) ? '' : 'none';
+  ts.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.switchForm===form.id));
+  form.classList.add('open');
+  formSheet.classList.add('open');
+  const fi = form.querySelector('input,select');
+  if(fi) setTimeout(()=>fi.focus(), 60);
+}
 function openFormForAdd(form){
   delete form.dataset.editId;
   form.reset();
   form.querySelector('button[type="submit"]').textContent = 'Salvar';
-  form.classList.add('open');
-  const fi = form.querySelector('input,select');
-  if(fi) fi.focus();
+  showSheetFor(form, false);
 }
 function openFormForEdit(form, fillFn, editId){
   form.reset();
   fillFn(form);
   form.dataset.editId = editId;
   form.querySelector('button[type="submit"]').textContent = 'Salvar alterações';
-  form.classList.add('open');
-  form.scrollIntoView({behavior:'smooth', block:'center'});
-  const fi = form.querySelector('input,select');
-  if(fi) fi.focus();
+  showSheetFor(form, true);
 }
-function closeForm(form){
+function closeForm(form, manterPainel){
   form.reset();
   form.classList.remove('open');
   delete form.dataset.editId;
+  if(!manterPainel && !document.querySelector('#formSheet .add-form.open')) formSheet.classList.remove('open');
 }
-document.querySelectorAll('.add-toggle').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const form = document.getElementById(btn.dataset.form);
-    if(form.classList.contains('open')){
-      if(formHasData(form) && !confirm('Você tem dados não salvos neste formulário. Fechar mesmo assim?')) return;
-      closeForm(form);
-    } else {
-      openFormForAdd(form);
-    }
+function tryCloseSheet(){
+  const aberto = document.querySelector('#formSheet .add-form.open');
+  if(aberto && formHasData(aberto) && !confirm('Você tem dados não salvos. Deseja realmente cancelar?')) return;
+  if(aberto) closeForm(aberto); else formSheet.classList.remove('open');
+}
+document.querySelectorAll('[data-open-form]').forEach(btn=>{
+  btn.addEventListener('click', e=>{
+    // o "+" fica dentro do cabeçalho da lista: não deixa ele abrir/fechar a lista
+    e.preventDefault(); e.stopPropagation();
+    openFormForAdd(document.getElementById(btn.dataset.openForm));
   });
+});
+document.querySelectorAll('[data-switch-form]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const alvo = document.getElementById(btn.dataset.switchForm);
+    if(alvo.classList.contains('open')) return;
+    const atual = document.querySelector('#formSheet .add-form.open');
+    if(atual && formHasData(atual) && !confirm('Você tem dados não salvos. Trocar mesmo assim?')) return;
+    openFormForAdd(alvo);
+  });
+});
+document.getElementById('fabAdd').addEventListener('click', ()=> openFormForAdd(document.getElementById('gastoForm')));
+document.getElementById('closeSheet').addEventListener('click', tryCloseSheet);
+formSheet.addEventListener('click', e=>{ if(e.target===formSheet) tryCloseSheet(); });
+document.getElementById('qaPagar').addEventListener('click', ()=>{
+  setTab('gastos');
+  const det = document.getElementById('detGastos');
+  det.open = true;
+  det.scrollIntoView({behavior:'smooth', block:'start'});
 });
 document.querySelectorAll('[data-cancel]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -886,6 +1110,13 @@ document.getElementById('prevMonth').addEventListener('click', ()=>{
 });
 document.getElementById('nextMonth').addEventListener('click', ()=>{
   currentDate.setMonth(currentDate.getMonth()+1); renderGastos();
+});
+// Troca de mês direto no Dashboard (mesmo mês usado em Gastos Mensais)
+document.getElementById('dashPrevMonth').addEventListener('click', ()=>{
+  currentDate.setDate(1); currentDate.setMonth(currentDate.getMonth()-1); renderGastos(); renderDashboard();
+});
+document.getElementById('dashNextMonth').addEventListener('click', ()=>{
+  currentDate.setDate(1); currentDate.setMonth(currentDate.getMonth()+1); renderGastos(); renderDashboard();
 });
 
 function renderGastos(){
@@ -999,7 +1230,7 @@ function renderLedgerItem(item,type,onDelete,categoria,status,onToggleStatus,onE
       </div>
     </div>
     <div class="ledger-bottom">
-      ${status?`<button type="button" class="chip ${chipClass}" style="border:none;cursor:pointer;">${chipLabel}</button>`:''}
+      ${status?`<button type="button" class="status-btn ${chipClass}"><span class="st-ic">${status==='pago'?'<span class="material-symbols-outlined">check</span>':''}</span>${chipLabel}</button>`:''}
       <span class="li-value ${type}">${type==='income'?'+':'−'} ${brl(item.valor)}</span>
       <button class="icon-sm-btn" aria-label="Editar"><span class="material-symbols-outlined">edit</span></button>
       <button class="icon-sm-btn danger" aria-label="Remover"><span class="material-symbols-outlined">delete</span></button>
@@ -1008,8 +1239,11 @@ function renderLedgerItem(item,type,onDelete,categoria,status,onToggleStatus,onE
   btns[0].addEventListener('click', onEdit);
   btns[1].addEventListener('click', onDelete);
   if(onToggleStatus){
-    const chipBtn = row.querySelector('.chip');
-    if(chipBtn) chipBtn.addEventListener('click', onToggleStatus);
+    const chipBtn = row.querySelector('.status-btn');
+    if(chipBtn) chipBtn.addEventListener('click', ()=>{
+      if(navigator.vibrate) navigator.vibrate(12);
+      onToggleStatus();
+    });
   }
   return row;
 }
@@ -1187,13 +1421,11 @@ function renderDashboard(){
 
   const totalGastos = totalPago+totalFalta;
   const pctPago = totalGastos>0 ? Math.round((totalPago/totalGastos)*100) : 0;
-  document.getElementById('donutChart').style.background =
-    totalGastos>0
-      ? `conic-gradient(var(--green-500) 0% ${pctPago}%, var(--yellow-500) ${pctPago}% 100%)`
-      : `var(--surface-2)`;
+  document.getElementById('dashBarPago').style.width = (totalGastos>0 ? (totalPago/totalGastos*100) : 0)+'%';
+  document.getElementById('dashBarFalta').style.width = (totalGastos>0 ? (totalFalta/totalGastos*100) : 0)+'%';
   document.getElementById('donutPct').textContent = pctPago+'%';
-  document.getElementById('legPago').textContent = brl(totalPago);
-  document.getElementById('legFalta').textContent = brl(totalFalta);
+  // Hero fica azul quando todas as contas do mês estão pagas (igual ao cabeçalho)
+  document.getElementById('dashHero').classList.toggle('all-paid', data.despesas.length>0 && totalFalta===0);
 
   const catMap = {};
   data.despesas.forEach(d=>{ catMap[d.categoria||'Outros'] = (catMap[d.categoria||'Outros']||0)+Number(d.valor||0); });
@@ -1203,12 +1435,24 @@ function renderDashboard(){
   if(!catEntries.length){
     catCard.innerHTML = `<div class="empty"><span class="material-symbols-outlined">bar_chart</span><p>Nenhum gasto lançado neste mês.</p></div>`;
   } else {
+    const CAT_ICONES = {
+      'Moradia':'home','Contas fixas':'bolt','Telefonia e Internet':'wifi','Alimentação':'shopping_cart',
+      'Transporte':'directions_car','Educação':'school','Saúde':'medical_services','Cartão de crédito':'credit_card',
+      'Impostos e taxas':'account_balance','Jurídico':'gavel','Consórcio':'groups',
+      'Empréstimos e financiamentos':'payments','Terrenos e imóveis':'landscape','Lazer':'celebration','Outros':'category'
+    };
     const max = catEntries[0][1];
-    catCard.innerHTML = catEntries.map(([cat,val])=>`
-      <div class="bar-row">
-        <div class="bar-row-top"><span>${escapeHtml(cat)}</span><b>${brl(val)}</b></div>
-        <div class="bar-track"><div class="bar-fill" style="width:${max?(val/max*100):0}%"></div></div>
-      </div>`).join('');
+    catCard.innerHTML = catEntries.map(([cat,val])=>{
+      const pctCat = totalGastos>0 ? Math.round(val/totalGastos*100) : 0;
+      return `
+      <div class="cat-row">
+        <span class="cat-ic"><span class="material-symbols-outlined">${CAT_ICONES[cat]||'category'}</span></span>
+        <div class="cat-main">
+          <div class="cat-top bar-row-top"><span>${escapeHtml(cat)}</span><b>${brl(val)}</b></div>
+          <div class="cat-bot"><div class="bar-track"><div class="bar-fill" style="width:${max?(val/max*100):0}%"></div></div><small>${pctCat}%</small></div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   /* ---- Fluxo por quinzena (dia 01–14 e dia 15–fim do mês) ---- */
@@ -1229,17 +1473,14 @@ function renderDashboard(){
 
   function quinzenaBloco(titulo, entra, contas, saldo){
     const falta = saldo < 0;
+    const cls = falta ? 'bad' : 'ok';
     return `
-      <div style="margin-bottom:6px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;">
-          <span style="font-weight:700;font-family:var(--font-display);font-size:13.5px;">${titulo}</span>
-          ${falta?'<button type="button" class="chip atrasado" style="border:none;">Vai faltar dinheiro</button>':'<button type="button" class="chip pago" style="border:none;">Dinheiro cobre as contas</button>'}
-        </div>
-        <div class="stat-grid">
-          <div class="stat pos"><div class="bar"></div><label>Entra no período</label><div class="value">${brl(entra)}</div></div>
-          <div class="stat warn"><div class="bar"></div><label>Contas do período</label><div class="value">${brl(contas)}</div></div>
-        </div>
-        <div class="stat ${falta?'neg':'info'}" style="margin-top:10px;"><div class="bar"></div><label>${falta?'Falta no período':'Sobra no período'}</label><div class="value">${falta?'− ':'+ '}${brl(Math.abs(saldo))}</div></div>
+      <div class="q-tile">
+        <div class="q-head"><span>${titulo}</span><span class="q-badge ${cls}"><span class="material-symbols-outlined">${falta?'priority_high':'check'}</span></span></div>
+        <div class="q-status ${cls}">${falta?'Vai faltar dinheiro':'Dinheiro cobre as contas'}</div>
+        <div class="q-row">Entra no período<span class="value">${brl(entra)}</span></div>
+        <div class="q-row">Contas do período<span class="value">${brl(contas)}</span></div>
+        <div class="q-result ${cls}"><span>${falta?'Falta no período':'Sobra no período'}</span><span class="value">${falta?'− ':'+ '}${brl(Math.abs(saldo))}</span></div>
       </div>`;
   }
 
@@ -1251,20 +1492,22 @@ function renderDashboard(){
   quinzenaSumEl.classList.toggle('debt', faltaTotal);
   quinzenaSumEl.classList.toggle('income', !faltaTotal);
   qc.innerHTML =
-    quinzenaBloco(`Dia 01 a 14`, entraP1, contasP1, saldoP1) +
-    `<div class="modal-divider"></div>` +
-    quinzenaBloco(`Dia 15 a ${ultimoDia}`, entraP2, contasP2, saldoP2) +
+    `<div class="q-grid">` +
+    quinzenaBloco(`Dia 01–14`, entraP1, contasP1, saldoP1) +
+    quinzenaBloco(`Dia 15–${ultimoDia}`, entraP2, contasP2, saldoP2) +
+    `</div>` +
     (semData ? `<p style="font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin:12px 0 0;">${semData} lançamento(s) sem data não ${semData===1?'entrou':'entraram'} nessa conta — edite e adicione a data para incluir.</p>` : '');
 
   const cc = document.getElementById('dashCartoesCard');
   if(state.cartoes.length===0){
-    cc.innerHTML = `<div class="empty"><span class="material-symbols-outlined">credit_card_off</span><p>Nenhum cartão cadastrado ainda.</p></div>`;
+    cc.innerHTML = `<div class="card"><div class="empty"><span class="material-symbols-outlined">credit_card_off</span><p>Nenhum cartão cadastrado ainda.</p></div></div>`;
   } else {
-    cc.innerHTML = state.cartoes.map(c=>`
-      <div class="ledger-item">
-        <div class="ledger-main"><span class="dot expense"></span><div class="li-text"><span class="desc">${escapeHtml(c.nome)}</span></div></div>
-        <div class="li-right"><span class="li-value expense">${brl(c.saldo)}</span></div>
-      </div>`).join('');
+    const CC_CORES = ['#1d2b3a','#5b2a5e','#7a2e1f','#1f4e5f','#3a3f1c','#3b2f6b'];
+    cc.innerHTML = `<div class="cc-scroll">` + state.cartoes.map((c,i)=>`
+      <div class="cc-card" style="background:${CC_CORES[i%CC_CORES.length]};">
+        <div class="cc-top"><span>${escapeHtml(c.nome)}</span><span class="cc-chip"></span></div>
+        <div><small>Saldo atual da fatura</small><div class="value">${brl(c.saldo)}</div></div>
+      </div>`).join('') + `</div>`;
   }
 
   const oc = document.getElementById('dashOutrasCard');
@@ -1276,8 +1519,9 @@ function renderDashboard(){
       const pct = d.total>0 ? Math.min(100,(d.pago/d.total)*100) : 0;
       return `
       <div class="card debt-card">
-        <div class="debt-head">
-          <div><h3>${escapeHtml(d.nome)}</h3><span class="tag">${d.prazo?d.prazo+' meses restantes · ':''}${d.parcela?brl(d.parcela)+'/mês':'sem parcela definida'}</span></div>
+        <div class="ring-row">
+          <div class="ring" style="background:conic-gradient(var(--green-500) 0 ${pct}%, var(--surface-2) ${pct}% 100%);"><span>${Math.round(pct)}%</span></div>
+          <div style="min-width:0;"><h3>${escapeHtml(d.nome)}</h3><span class="tag">${d.prazo?d.prazo+' meses restantes · ':''}${d.parcela?brl(d.parcela)+'/mês':'sem parcela definida'}</span></div>
         </div>
         <div class="debt-numbers">
           <div>Pago<b>${brl(d.pago)}</b></div>
