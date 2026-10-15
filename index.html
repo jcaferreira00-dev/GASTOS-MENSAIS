@@ -424,6 +424,8 @@ body.privacy-on .leg-row b:hover{
 .hero-mini .value{font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:-.4px;margin-top:3px;white-space:nowrap;line-height:1.25;}
 .hero-mini{padding:10px 8px;}
 
+.month-stack{display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center;text-transform:none !important;}
+.month-stack .periodo{font-family:var(--font-body);font-size:11.5px;font-weight:600;text-transform:none;opacity:.75;margin-top:2px;}
 /* Atalhos rápidos */
 .bill-status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
 .bs{border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:12px 10px;text-align:left;cursor:pointer;
@@ -584,7 +586,7 @@ details.collapsible:not([open]):is(#detQuinzena,#detCategoria) summary .sum-badg
       <div class="dash-hero" id="dashHero">
         <div class="hero-month">
           <button type="button" id="dashPrevMonth" aria-label="Mês anterior"><span class="material-symbols-outlined">chevron_left</span></button>
-          <span class="label" id="dashMonthLabel">—</span>
+          <span class="label month-stack"><span id="dashMonthLabel">—</span><small class="periodo" id="dashPeriodo"></small></span>
           <button type="button" id="dashNextMonth" aria-label="Próximo mês"><span class="material-symbols-outlined">chevron_right</span></button>
         </div>
         <div class="hero-saldo">
@@ -643,7 +645,7 @@ details.collapsible:not([open]):is(#detQuinzena,#detCategoria) summary .sum-badg
     <section class="tab-panel" id="tab-gastos">
       <div class="month-switch">
         <button id="prevMonth" aria-label="Mês anterior"><span class="material-symbols-outlined">chevron_left</span></button>
-        <span class="label" id="monthLabel">—</span>
+        <span class="label month-stack"><span id="monthLabel">—</span><small class="periodo" id="gastoPeriodo"></small></span>
         <button id="nextMonth" aria-label="Próximo mês"><span class="material-symbols-outlined">chevron_right</span></button>
       </div>
 
@@ -1031,7 +1033,6 @@ function closeForm(form, manterPainel){
 }
 function tryCloseSheet(){
   const aberto = document.querySelector('#formSheet .add-form.open');
-  if(aberto && formHasData(aberto) && !confirm('Você tem dados não salvos. Deseja realmente cancelar?')) return;
   if(aberto) closeForm(aberto); else formSheet.classList.remove('open');
 }
 document.querySelectorAll('[data-open-form]').forEach(btn=>{
@@ -1046,7 +1047,6 @@ document.querySelectorAll('[data-switch-form]').forEach(btn=>{
     const alvo = document.getElementById(btn.dataset.switchForm);
     if(alvo.classList.contains('open')) return;
     const atual = document.querySelector('#formSheet .add-form.open');
-    if(atual && formHasData(atual) && !confirm('Você tem dados não salvos. Trocar mesmo assim?')) return;
     openFormForAdd(alvo);
   });
 });
@@ -1067,19 +1067,20 @@ document.getElementById('gastoFiltroLimpar').addEventListener('click', ()=>{ gas
 document.querySelectorAll('[data-cancel]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const form = document.getElementById(btn.dataset.cancel);
-    if(formHasData(form) && !confirm('Você tem dados não salvos. Deseja realmente cancelar?')) return;
     closeForm(form);
   });
-});
-window.addEventListener('beforeunload', (e)=>{
-  const anyDirty = [...document.querySelectorAll('.add-form.open')].some(f=>formHasData(f));
-  if(anyDirty){ e.preventDefault(); e.returnValue=''; }
 });
 
 /* ============ Mês corrente (Gastos Mensais) — com repetição automática ============ */
 let currentDate = new Date();
 function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthLabelFor(d){ return MONTHS[d.getMonth()] + ' de ' + d.getFullYear(); }
+// Ex.: "Período: 01/10/2026 a 31/10/2026" (último dia real do mês: 28, 29, 30 ou 31)
+function periodoTexto(d){
+  const mm = String(d.getMonth()+1).padStart(2,'0'), aa = d.getFullYear();
+  const ult = new Date(aa, d.getMonth()+1, 0).getDate();
+  return `Período: 01/${mm}/${aa} a ${ult}/${mm}/${aa}`;
+}
 
 // Só um mês "travado" (locked) conta como fonte real de dados: um mês fica travado
 // assim que o usuário adiciona, edita, exclui ou marca como pago algo nele, ou
@@ -1139,6 +1140,7 @@ document.getElementById('dashNextMonth').addEventListener('click', ()=>{
 function renderGastos(){
   const key = monthKey(currentDate);
   document.getElementById('monthLabel').textContent = monthLabelFor(currentDate);
+  document.getElementById('gastoPeriodo').textContent = periodoTexto(currentDate);
   const data = getMonthData(key);
 
   const totalRenda = data.rendas.reduce((s,i)=>s+Number(i.valor||0),0);
@@ -1427,6 +1429,7 @@ document.getElementById('outraForm').addEventListener('submit', e=>{
 /* ============ Dashboard ============ */
 function renderDashboard(){
   document.getElementById('dashMonthLabel').textContent = monthLabelFor(currentDate);
+  document.getElementById('dashPeriodo').textContent = periodoTexto(currentDate);
   const key = monthKey(currentDate);
   const data = getMonthData(key);
   const totalRenda = data.rendas.reduce((s,i)=>s+Number(i.valor||0),0);
@@ -1524,8 +1527,8 @@ function renderDashboard(){
   quinzenaSumEl.classList.toggle('income', !faltaTotal);
   qc.innerHTML =
     `<div class="q-grid">` +
-    quinzenaBloco(`Dia 01–14`, entraP1, contasP1, saldoP1) +
-    quinzenaBloco(`Dia 15–${ultimoDia}`, entraP2, contasP2, saldoP2) +
+    quinzenaBloco(`01/${String(qm).padStart(2,'0')} a 14/${String(qm).padStart(2,'0')}`, entraP1, contasP1, saldoP1) +
+    quinzenaBloco(`15/${String(qm).padStart(2,'0')} a ${ultimoDia}/${String(qm).padStart(2,'0')}`, entraP2, contasP2, saldoP2) +
     `</div>` +
     (semData ? `<p style="font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin:12px 0 0;">${semData} lançamento(s) sem data não ${semData===1?'entrou':'entraram'} nessa conta — edite e adicione a data para incluir.</p>` : '');
 
