@@ -321,7 +321,6 @@
     display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;padding:6px;
     box-shadow:0 10px 30px -12px rgba(0,0,0,.35);
   }
-  .tabbar .tab-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
   .tabbar button[data-tab]{
     background:transparent;border:none;display:flex;flex-direction:column;
     align-items:center;gap:2px;padding:7px 2px;border-radius:14px;color:var(--ink-soft);cursor:pointer;
@@ -329,14 +328,6 @@
   .tabbar button[data-tab].active{color:var(--green-ink);}
   .tabbar button[data-tab].active .material-symbols-outlined{font-variation-settings:'opsz' 24,'wght' 500,'FILL' 1,'GRAD' 0;}
   .tabbar button span.lbl{font-size:11px;font-weight:600;}
-  .tabbar .fab-slot{display:flex;justify-content:center;}
-  .fab{
-    width:58px;height:58px;margin-top:-30px;border-radius:20px;border:4px solid var(--bg);
-    background:var(--btn-primary);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
-    box-shadow:0 8px 20px -6px rgba(31,122,72,.65);transition:transform .12s ease;
-  }
-  .fab:active{transform:scale(.92);}
-  .fab .material-symbols-outlined{font-size:30px;}
 
   /* ---------- Modals ---------- */
   .modal-overlay{
@@ -503,6 +494,9 @@ body.privacy-on .leg-row b:hover{
 .sum-add .material-symbols-outlined{font-size:20px;}
 details.collapsible summary .sum-badge{margin-left:auto;}
 details.collapsible summary .sum-badge ~ .chev{margin-left:0;}
+details.collapsible summary .sum-badge{white-space:nowrap;flex:none;}
+#detQuinzena summary .sum-badge,#detCategoria summary .sum-badge{width:156px;text-align:center;box-sizing:border-box;}
+details.collapsible:not([open]):is(#detQuinzena,#detCategoria) summary .sum-badge{font-size:14px;padding:6px 8px;}
 
 /* Botão de status pago/pendente */
 .status-btn{
@@ -521,6 +515,9 @@ details.collapsible summary .sum-badge ~ .chev{margin-left:0;}
 .status-btn.pago .st-ic{background:#fff;color:var(--btn-primary);}
 [data-theme="dark"] .status-btn.pendente{background:rgba(247,201,72,.1);border-color:rgba(247,201,72,.4);color:#f7c948;}
 .ledger-bottom{gap:8px;}
+.ledger-bottom{padding-left:0;gap:6px;}
+.ledger-bottom .status-btn{width:108px;justify-content:flex-start;margin-right:auto;}
+.ledger-bottom .li-value{white-space:nowrap;font-size:14px;margin-left:4px;}
 .debt-head .actions{gap:6px;}
 
 /* Painel deslizante de lançamento */
@@ -606,13 +603,13 @@ details.collapsible summary .sum-badge ~ .chev{margin-left:0;}
 
       <h2 class="section-title"><span class="material-symbols-outlined">event_repeat</span>Fluxo por quinzena</h2>
       <details class="card collapsible" id="detQuinzena">
-        <summary><span class="material-symbols-outlined">event_repeat</span>Ver detalhamento por quinzena<span class="count sum-badge" id="dashQuinzenaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">event_repeat</span>Ver por quinzena<span class="count sum-badge" id="dashQuinzenaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body" id="dashQuinzenaCard"></div>
       </details>
 
       <h2 class="section-title"><span class="material-symbols-outlined">bar_chart</span>Gastos por categoria</h2>
       <details class="card collapsible" id="detCategoria">
-        <summary><span class="material-symbols-outlined">bar_chart</span>Ver detalhamento por categoria<span class="count sum-badge expense" id="dashCategoriaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
+        <summary><span class="material-symbols-outlined">bar_chart</span>Ver por categoria<span class="count sum-badge expense" id="dashCategoriaSum">R$ 0,00</span><span class="material-symbols-outlined chev">expand_more</span></summary>
         <div class="details-body" id="dashCategoriaCard"></div>
       </details>
 
@@ -715,13 +712,8 @@ details.collapsible summary .sum-badge ~ .chev{margin-left:0;}
 
 <nav class="tabbar">
   <button data-tab="dashboard" class="active"><span class="material-symbols-outlined">dashboard</span><span class="lbl">Dashboard</span></button>
-  <div class="fab-slot">
-    <button type="button" class="fab" id="fabAdd" aria-label="Novo lançamento"><span class="material-symbols-outlined">add</span></button>
-  </div>
-  <div class="tab-pair">
-    <button data-tab="gastos"><span class="material-symbols-outlined">receipt_long</span><span class="lbl">Gastos</span></button>
-    <button data-tab="dividas"><span class="material-symbols-outlined">credit_card</span><span class="lbl">Dívidas</span></button>
-  </div>
+  <button data-tab="gastos"><span class="material-symbols-outlined">receipt_long</span><span class="lbl">Gastos</span></button>
+  <button data-tab="dividas"><span class="material-symbols-outlined">credit_card</span><span class="lbl">Dívidas</span></button>
 </nav>
 
 <!-- ================= PAINEL: NOVO LANÇAMENTO ================= -->
@@ -1038,7 +1030,6 @@ document.querySelectorAll('[data-switch-form]').forEach(btn=>{
     openFormForAdd(alvo);
   });
 });
-document.getElementById('fabAdd').addEventListener('click', ()=> openFormForAdd(document.getElementById('gastoForm')));
 document.getElementById('closeSheet').addEventListener('click', tryCloseSheet);
 formSheet.addEventListener('click', e=>{ if(e.target===formSheet) tryCloseSheet(); });
 document.getElementById('qaPagar').addEventListener('click', ()=>{
